@@ -362,10 +362,10 @@ function populateDashboard() {
 function populateHome(s) {
   document.getElementById('homeDateChip').textContent = new Date().toLocaleDateString('en-IN', { day:'numeric', month:'short', weekday:'short' });
 
-  const totalChaps = Object.values(s.syllabus).reduce((a,v) => a + (v.completed?.length||0) + (v.ongoing?.length||0) + (v.pending?.length||0), 0);
-  const doneChaps = Object.values(s.syllabus).reduce((a,v) => a + (v.completed?.length||0), 0);
+  const totalChaps = Object.values(s.syllabus).reduce((a,v) => a + (v.completed ? v.completed.length : 0) + (v.ongoing ? v.ongoing.length : 0) + (v.pending ? v.pending.length : 0), 0);
+  const doneChaps = Object.values(s.syllabus).reduce((a,v) => a + (v.completed ? v.completed.length : 0), 0);
   const pct = totalChaps > 0 ? Math.round(doneChaps / totalChaps * 100) : 0;
-  const latestTest = s.tests.length > 0 ? s.tests[0] : { score: 0, total: 0 };
+  const latestTest = (s.tests && s.tests.length > 0) ? s.tests[0] : { score: 0, total: 0 };
   const pendingHW = s.previousHomework.filter(h => !h.done).length;
   const avgScore = s.subjects.length > 0 ? Math.round(s.subjects.reduce((a,b) => a+b.score, 0) / s.subjects.length) : 0;
 
@@ -429,8 +429,8 @@ function populateTests(s) {
   let html = '';
   s.tests.forEach((t, i) => {
     const bg = scoreBg(t.score, t.total);
-    const gt = t.grade === 'A+' ? '#059669' : t.grade === 'A' ? '#0369A1' : t.grade.includes('B') ? '#B45309' : '#C00';
-    const gc = t.grade === 'A+' ? 'grade-A-plus' : t.grade === 'A' ? 'grade-A' : t.grade.includes('B') ? 'grade-B' : 'grade-C';
+    const gt = t.grade === 'A+' ? '#059669' : t.grade === 'A' ? '#0369A1' : String(t.grade).includes('B') ? '#B45309' : '#C00';
+    const gc = t.grade === 'A+' ? 'grade-A-plus' : t.grade === 'A' ? 'grade-A' : String(t.grade).includes('B') ? 'grade-B' : 'grade-C';
     html += `
     ${t.latest ? '<div class="test-latest-badge">🔥 LATEST TEST</div>' : ''}
     <div class="test-card ${t.latest ? 'latest' : ''}" id="tc${i}">
@@ -458,15 +458,14 @@ function populateSyllabus(s) {
   const emojis = { "Maths": "📐", "Science": "🔬", "Chemistry": "🧪", "Physics": "⚡", "Biology": "🧬", "English": "📖", "Hindi": "🗒️", "Marathi": "🏡", "SST": "🌍", "History": "📜", "Geography": "🗺️", "Civics": "🏛️", "Computer": "💻" };
 
   Object.entries(s.syllabus).forEach(([subj, data], idx) => {
-    let cleanName = subj.replace(/[\p{Emoji}\u200d]+/gu, '').trim(); 
-    if (!cleanName) cleanName = subj;
+    let cleanName = subj;
     let icon = emojis[cleanName] || "📚";
 
-    const doneItems = data.completed || [];
+    const completedItems = data.completed || [];
     const ongoingItems = data.ongoing || [];
     const pendingItems = data.pending || [];
-    const total = doneItems.length + ongoingItems.length + pendingItems.length;
-    const doneCount = doneItems.length;
+    const total = completedItems.length + ongoingItems.length + pendingItems.length;
+    const doneCount = completedItems.length;
     const fillPct = total > 0 ? Math.round(doneCount / total * 100) : 0;
     
     html += `
@@ -478,7 +477,7 @@ function populateSyllabus(s) {
         <div class="syl-expand">▼</div>
       </div>
       <div class="syl-body">
-        ${doneItems.map(ch => `<div class="syl-chapter"><div class="chk done">✓</div><div class="cname done">${ch}</div><div class="ctag done">Completed</div></div>`).join('')}
+        ${completedItems.map(ch => `<div class="syl-chapter"><div class="chk done">✓</div><div class="cname done">${ch}</div><div class="ctag done">Completed</div></div>`).join('')}
         ${ongoingItems.map(ch => `<div class="syl-chapter"><div class="chk" style="background:#FFF3E0; border-color:var(--orange); color:var(--orange);">↻</div><div class="cname" style="color:var(--dark);">${ch}</div><div class="ctag" style="background:#FFF3E0; color:var(--orange); border: 1.5px solid var(--orange);">Ongoing</div></div>`).join('')}
         ${pendingItems.map(ch => `<div class="syl-chapter"><div class="chk pending">○</div><div class="cname pending">${ch}</div><div class="ctag pending">Upcoming</div></div>`).join('')}
       </div>
