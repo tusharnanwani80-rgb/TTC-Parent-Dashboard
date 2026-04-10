@@ -336,9 +336,15 @@ function playWelcomeSound() {
 }
 
 function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+
 function openDashboard() { 
-  try { populateDashboard(); showScreen('dashboard'); } 
-  catch(e) { alert("An error occurred loading the dashboard data. Please contact Admin."); console.error(e); }
+  try { 
+    populateDashboard(); 
+    showScreen('dashboard'); 
+  } catch(e) { 
+    alert("An error occurred while building the dashboard. Please contact TTC Admin."); 
+    console.error(e); 
+  }
 }
 
 document.getElementById('studentIdInput').addEventListener('keydown', e => {
@@ -466,9 +472,7 @@ function populateSyllabus(s) {
   const emojis = { "Maths": "📐", "Science": "🔬", "Chemistry": "🧪", "Physics": "⚡", "Biology": "🧬", "English": "📖", "Hindi": "🗒️", "Marathi": "🏡", "SST": "🌍", "History": "📜", "Geography": "🗺️", "Civics": "🏛️", "Computer": "💻" };
 
   Object.entries(s.syllabus).forEach(([subj, data], idx) => {
-    // Universal safe strip: removes any weird emojis or special chars that crashed old phones
-    let cleanName = subj.replace(/[^\x00-\x7F]/g, '').trim(); 
-    if (!cleanName) cleanName = subj;
+    let cleanName = subj;
     let icon = emojis[cleanName] || "📚";
 
     const completedItems = data.completed || [];
