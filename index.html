@@ -336,7 +336,10 @@ function playWelcomeSound() {
 }
 
 function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
-function openDashboard() { populateDashboard(); showScreen('dashboard'); }
+function openDashboard() { 
+  try { populateDashboard(); showScreen('dashboard'); } 
+  catch(e) { alert("An error occurred loading the dashboard data. Please contact Admin."); console.error(e); }
+}
 
 document.getElementById('studentIdInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') loginStudent();
@@ -356,7 +359,12 @@ function populateDashboard() {
   document.getElementById('hdrClass').textContent = s.class + ' · ' + s.board;
   document.getElementById('hdrId').textContent = Object.keys(STUDENTS).find(k => STUDENTS[k] === s);
 
-  populateHome(s); populateHomework(s); populateProgress(s); populateTests(s); populateSyllabus(s); populateLeaderboard();
+  try { populateHome(s); } catch(e) { console.error("Home Error", e); }
+  try { populateHomework(s); } catch(e) { console.error("HW Error", e); }
+  try { populateProgress(s); } catch(e) { console.error("Progress Error", e); }
+  try { populateTests(s); } catch(e) { console.error("Tests Error", e); }
+  try { populateSyllabus(s); } catch(e) { console.error("Syllabus Error", e); }
+  try { populateLeaderboard(); } catch(e) { console.error("Leaderboard Error", e); }
 }
 
 function populateHome(s) {
@@ -458,7 +466,9 @@ function populateSyllabus(s) {
   const emojis = { "Maths": "📐", "Science": "🔬", "Chemistry": "🧪", "Physics": "⚡", "Biology": "🧬", "English": "📖", "Hindi": "🗒️", "Marathi": "🏡", "SST": "🌍", "History": "📜", "Geography": "🗺️", "Civics": "🏛️", "Computer": "💻" };
 
   Object.entries(s.syllabus).forEach(([subj, data], idx) => {
-    let cleanName = subj;
+    // Universal safe strip: removes any weird emojis or special chars that crashed old phones
+    let cleanName = subj.replace(/[^\x00-\x7F]/g, '').trim(); 
+    if (!cleanName) cleanName = subj;
     let icon = emojis[cleanName] || "📚";
 
     const completedItems = data.completed || [];
