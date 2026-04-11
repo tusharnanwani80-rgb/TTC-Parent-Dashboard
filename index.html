@@ -183,13 +183,10 @@ function playWelcomeSound() {
   } catch(e) {}
 }
 
-// 🔴 THE NEW "INSTANT-CHANGE" BUTTON
 function openDashboard() {
-  // 1. Instantly hide Welcome Screen and show Dashboard
   document.getElementById('welcomeScreen').classList.remove('active');
   document.getElementById('dashboard').classList.add('active');
 
-  // 2. Wait 50 milliseconds to let the phone draw the new screen, THEN load the data
   setTimeout(function() {
     populateDashboard();
   }, 50);
@@ -218,7 +215,6 @@ function populateDashboard() {
   for (var key in STUDENTS) { if (STUDENTS[key] === s) { foundId = key; break; } }
   document.getElementById('hdrId').textContent = foundId;
 
-  // We are calling these functions separately. If one errors, the others still work!
   try { populateHome(s); } catch(e) { console.error("Home issue", e); }
   try { populateHomework(s); } catch(e) { console.error("HW issue", e); }
   try { populateProgress(s); } catch(e) { console.error("Progress issue", e); }
@@ -227,27 +223,10 @@ function populateDashboard() {
   try { populateLeaderboard(); } catch(e) { console.error("LB issue", e); }
 }
 
+// 🔴 THE VARIABLE ISOLATION FIX: SYLLABUS MATH COMPLETELY REMOVED 🔴
 function populateHome(s) {
   document.getElementById('homeDateChip').textContent = new Date().toLocaleDateString('en-IN', { day:'numeric', month:'short', weekday:'short' });
 
-  // RAW JAVASCRIPT MATH (Crash Proof)
-  var totalChaps = 0;
-  var doneChaps = 0;
-  
-  if (s.syllabus) {
-    for (var k in s.syllabus) {
-      var obj = s.syllabus[k];
-      if (obj) {
-        var c = (obj.completed && obj.completed.length) ? obj.completed.length : ((obj.done && obj.done.length) ? obj.done.length : 0);
-        var o = (obj.ongoing && obj.ongoing.length) ? obj.ongoing.length : 0;
-        var p = (obj.pending && obj.pending.length) ? obj.pending.length : 0;
-        totalChaps += (c + o + p);
-        doneChaps += c;
-      }
-    }
-  }
-
-  var pct = totalChaps > 0 ? Math.round((doneChaps / totalChaps) * 100) : 0;
   var latestTest = (s.tests && s.tests.length > 0) ? s.tests[0] : { score: 0, total: 0 };
   
   var pendingHW = 0;
@@ -267,7 +246,7 @@ function populateHome(s) {
   document.getElementById('statGrid').innerHTML = `
     <div class="stat-card blue"><div class="sc-icon">📈</div><div class="sc-val">${avgScore}%</div><div class="sc-label">Avg. Score</div></div>
     <div class="stat-card orange"><div class="sc-icon">📝</div><div class="sc-val">${latestTest.score}/${latestTest.total}</div><div class="sc-label">Latest Test</div></div>
-    <div class="stat-card green"><div class="sc-icon">✅</div><div class="sc-val">${pct}%</div><div class="sc-label">Syllabus Done</div></div>
+    <div class="stat-card green"><div class="sc-icon">✅</div><div class="sc-val">Active</div><div class="sc-label">Syllabus</div></div>
     <div class="stat-card pink"><div class="sc-icon">⚠️</div><div class="sc-val">${pendingHW}</div><div class="sc-label">HW Pending</div></div>
   `;
 
@@ -387,7 +366,6 @@ function populateTests(s) {
 
 function toggleTest(i) { var card = document.getElementById('tc' + i); if(card) card.classList.toggle('open'); }
 
-// 🔴 THE NEW INDESTRUCTIBLE SYLLABUS FETCHER
 function populateSyllabus(s) {
   var container = document.getElementById('syllabusList');
   container.innerHTML = ''; 
@@ -400,7 +378,6 @@ function populateSyllabus(s) {
   var html = '';
   var index = 0;
 
-  // It natively grabs whatever subject is in the Google Sheet
   for (var subj in s.syllabus) {
     var data = s.syllabus[subj];
     if (!data) continue;
