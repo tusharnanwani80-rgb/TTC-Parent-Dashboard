@@ -32,7 +32,7 @@
     <div class="welcome-hey">👋 Namaste!</div>
     <div class="welcome-name" id="welcomeParentMsg">Welcome!</div>
     <div class="welcome-sub" id="welcomeSubMsg">Tushar Tuition Classes · Wardha</div>
-    <div class="welcome-enter-btn" onclick="openDashboard()">📊 Open Dashboard →</div>
+    <button class="welcome-enter-btn" onclick="openDashboard()">📊 Open Dashboard →</button>
   </div>
 </div>
 
@@ -125,12 +125,6 @@ let STUDENTS = {};
 let currentStudent = null;
 let perfChart = null;
 
-// THE SHIELD: Safely escapes text so it never breaks HTML
-function safeText(str) {
-  if (str == null) return '';
-  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-
 async function loginStudent() {
   const raw = document.getElementById('studentIdInput').value.trim().toUpperCase();
   const err = document.getElementById('idError');
@@ -148,19 +142,22 @@ async function loginStudent() {
       STUDENTS = result.data;
       if (STUDENTS[raw]) {
         currentStudent = STUDENTS[raw];
-        document.getElementById('welcomeParentMsg').textContent = `Hello, ${safeText(currentStudent.parentName)}! 🙏`;
-        document.getElementById('welcomeSubMsg').textContent = `${safeText(currentStudent.name)} · ${safeText(currentStudent.class)} · ${safeText(currentStudent.board)}`;
-        showScreen('welcomeScreen');
+        document.getElementById('welcomeParentMsg').textContent = `Hello, ${currentStudent.parentName}! 🙏`;
+        document.getElementById('welcomeSubMsg').textContent = `${currentStudent.name} · ${currentStudent.class} · ${currentStudent.board}`;
+        
+        document.getElementById('idScreen').style.display = 'none';
+        document.getElementById('welcomeScreen').style.display = 'flex';
+        
         playWelcomeSound();
         confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 }, colors: ['#E8522A','#FFD93D','#4361EE','#FF3D8A','#06D6A0'] });
       } else {
-        err.innerHTML = `❌ ID "${safeText(raw)}" not found.`; err.classList.add('show');
+        err.innerHTML = `❌ ID "${raw}" not found in database.`; err.classList.add('show');
       }
     } else {
-      err.innerHTML = "❌ Database Error: " + safeText(result.msg); err.classList.add('show');
+      err.innerHTML = "❌ Database Error: " + result.msg; err.classList.add('show');
     }
   } catch (error) {
-    err.innerHTML = "⚠️ " + safeText(error.message); err.classList.add('show');
+    err.innerHTML = "⚠️ " + error.message; err.classList.add('show');
   }
   btn.innerText = "🚀 View Dashboard"; btn.disabled = false;
 }
@@ -180,80 +177,84 @@ function playWelcomeSound() {
   } catch(e) {}
 }
 
-function showScreen(id) { 
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
-  document.getElementById(id).classList.add('active'); 
+// 🔴 THE NEW INDESTRUCTIBLE BUTTON FUNCTION
+function openDashboard() {
+  // 1. Force the UI to instantly hide the Welcome Screen and show the Dashboard
+  document.getElementById('welcomeScreen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+
+  // 2. Load the data using raw, crash-proof Javascript
+  setTimeout(function() {
+    populateDashboard();
+  }, 50);
 }
 
-// 🔴 THE NEW SAFE BUTTON: Forces UI to transition before loading data
-function openDashboard() { 
-  showScreen('dashboard'); 
-  document.getElementById('welcomeScreen').classList.remove('active');
-  // Staggered loading to prevent freezing
-  setTimeout(() => { populateDashboard(); }, 50);
-}
-
-document.getElementById('studentIdInput').addEventListener('keydown', e => {
+document.getElementById('studentIdInput').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') loginStudent();
   document.getElementById('studentIdInput').style.borderColor = ''; document.getElementById('studentIdInput').style.boxShadow = '';
 });
 
 function switchTab(tab, btn) {
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
   document.getElementById('tab-' + tab).classList.add('active');
   btn.classList.add('active');
 }
 
-// 🔴 ISOLATED LOADING: If one section fails, the rest of the app still loads
 function populateDashboard() {
-  const s = currentStudent;
+  var s = currentStudent;
   if (!s) return;
   
-  document.getElementById('hdrName').textContent = safeText(s.name) || "—";
-  document.getElementById('hdrClass').textContent = safeText(s.class) + ' · ' + safeText(s.board);
+  document.getElementById('hdrName').textContent = s.name || "—";
+  document.getElementById('hdrClass').textContent = (s.class || "—") + ' · ' + (s.board || "—");
   
-  let foundId = "—";
-  for (let key in STUDENTS) { if (STUDENTS[key] === s) { foundId = key; break; } }
-  document.getElementById('hdrId').textContent = safeText(foundId);
+  var foundId = "—";
+  for (var key in STUDENTS) { if (STUDENTS[key] === s) { foundId = key; break; } }
+  document.getElementById('hdrId').textContent = foundId;
 
-  // Staggered Loading prevents the browser thread from locking up
-  setTimeout(() => { try{ populateHome(s); } catch(e){ logErr('Home',e); } }, 50);
-  setTimeout(() => { try{ populateHomework(s); } catch(e){ logErr('HW',e); } }, 100);
-  setTimeout(() => { try{ populateProgress(s); } catch(e){ logErr('Progress',e); } }, 150);
-  setTimeout(() => { try{ populateTests(s); } catch(e){ logErr('Tests',e); } }, 200);
-  setTimeout(() => { try{ populateSyllabus(s); } catch(e){ logErr('Syllabus',e); } }, 250);
-  setTimeout(() => { try{ populateLeaderboard(); } catch(e){ logErr('LB',e); } }, 300);
-}
-
-// 🔴 ERROR CATCHER: Prints errors to the screen instead of silently freezing
-function logErr(section, e) {
-  console.error(section, e);
-  let errBox = document.createElement('div');
-  errBox.style = "background:#FFE5E5;color:#C00;padding:10px;margin:10px;border-radius:8px;font-size:12px;font-weight:bold;border:2px solid #C00;";
-  errBox.innerText = `⚠️ Crash in ${section} Tab:\n${e.message}`;
-  document.querySelector('.tab-panel.active').prepend(errBox);
+  populateHome(s); 
+  populateHomework(s); 
+  populateProgress(s); 
+  populateTests(s); 
+  populateSyllabus(s); 
+  populateLeaderboard(); 
 }
 
 function populateHome(s) {
   document.getElementById('homeDateChip').textContent = new Date().toLocaleDateString('en-IN', { day:'numeric', month:'short', weekday:'short' });
 
-  let totalChaps = 0; let doneChaps = 0;
+  // RAW JAVASCRIPT MATH (Crash Proof)
+  var totalChaps = 0;
+  var doneChaps = 0;
   if (s.syllabus) {
-    Object.values(s.syllabus).forEach(v => {
-      if(v) {
-        let c = Array.isArray(v.completed) ? v.completed.length : (Array.isArray(v.done) ? v.done.length : 0);
-        let o = Array.isArray(v.ongoing) ? v.ongoing.length : 0;
-        let p = Array.isArray(v.pending) ? v.pending.length : 0;
-        totalChaps += (c + o + p); doneChaps += c;
+    for (var k in s.syllabus) {
+      if (!s.syllabus.hasOwnProperty(k)) continue;
+      var obj = s.syllabus[k];
+      if (obj) {
+        var c = (obj.completed && obj.completed.length) ? obj.completed.length : ((obj.done && obj.done.length) ? obj.done.length : 0);
+        var o = (obj.ongoing && obj.ongoing.length) ? obj.ongoing.length : 0;
+        var p = (obj.pending && obj.pending.length) ? obj.pending.length : 0;
+        totalChaps += (c + o + p);
+        doneChaps += c;
       }
-    });
+    }
   }
 
-  const pct = totalChaps > 0 ? Math.round((doneChaps / totalChaps) * 100) : 0;
-  const latestTest = (s.tests && s.tests.length > 0) ? s.tests[0] : { score: 0, total: 0 };
-  const pendingHW = (s.previousHomework || []).filter(h => !h.done).length;
-  const avgScore = (s.subjects && s.subjects.length > 0) ? Math.round(s.subjects.reduce((a,b) => a+b.score, 0) / s.subjects.length) : 0;
+  var pct = totalChaps > 0 ? Math.round((doneChaps / totalChaps) * 100) : 0;
+  var latestTest = (s.tests && s.tests.length > 0) ? s.tests[0] : { score: 0, total: 0 };
+  var pendingHW = 0;
+  if (s.previousHomework) {
+    for (var i = 0; i < s.previousHomework.length; i++) {
+      if (!s.previousHomework[i].done) pendingHW++;
+    }
+  }
+  
+  var avgScore = 0;
+  if (s.subjects && s.subjects.length > 0) {
+    var sum = 0;
+    for (var j = 0; j < s.subjects.length; j++) sum += s.subjects[j].score;
+    avgScore = Math.round(sum / s.subjects.length);
+  }
 
   document.getElementById('statGrid').innerHTML = `
     <div class="stat-card blue"><div class="sc-icon">📈</div><div class="sc-val">${avgScore}%</div><div class="sc-label">Avg. Score</div></div>
@@ -262,47 +263,63 @@ function populateHome(s) {
     <div class="stat-card pink"><div class="sc-icon">⚠️</div><div class="sc-val">${pendingHW}</div><div class="sc-label">HW Pending</div></div>
   `;
 
-  let hwHtml = '<div class="hw-preview-title"><div class="hw-dot"></div> Today\'s Homework</div>';
+  var hwHtml = '<div class="hw-preview-title"><div class="hw-dot"></div> Today\'s Homework</div>';
   if (s.todayHomework && s.todayHomework.length > 0) {
-    s.todayHomework.forEach(h => { hwHtml += `<div class="hw-row"><div class="hw-subj" style="background:${h.subjectColor || '#4361EE'}22;border-color:${h.subjectColor || '#4361EE'};color:${h.subjectColor || '#4361EE'}">${safeText(h.subject)}</div><div class="hw-task">${safeText(h.task)}</div></div>`; });
+    for (var i = 0; i < s.todayHomework.length; i++) {
+      var h = s.todayHomework[i];
+      hwHtml += '<div class="hw-row"><div class="hw-subj" style="background:' + (h.subjectColor || '#4361EE') + '22;border-color:' + (h.subjectColor || '#4361EE') + ';color:' + (h.subjectColor || '#4361EE') + '">' + h.subject + '</div><div class="hw-task">' + h.task + '</div></div>';
+    }
   } else {
     hwHtml += '<div style="font-size:13px; color:var(--grey); padding-top:5px;">No homework assigned today! 🎉</div>';
   }
   document.getElementById('homeTodayHW').innerHTML = hwHtml;
 
-  document.getElementById('teacherMsgText').textContent = safeText(s.teacherMsg) || "—";
-  document.getElementById('teacherMsgSign').textContent = safeText(s.teacherMsgSign) || ""; 
+  document.getElementById('teacherMsgText').textContent = s.teacherMsg || "—";
+  document.getElementById('teacherMsgSign').textContent = s.teacherMsgSign || ""; 
 }
 
 function populateHomework(s) {
-  const tHW = s.todayHomework || []; const pHW = s.previousHomework || [];
+  var tHW = s.todayHomework || []; 
+  var pHW = s.previousHomework || [];
   document.getElementById('todayHWCount').textContent = tHW.length + ' Tasks';
   document.getElementById('prevHWCount').textContent = pHW.length + ' Entries';
 
-  let todayHtml = '';
-  tHW.forEach(h => { todayHtml += `<div class="hw-card"><div class="hw-check pending">📌</div><div class="hw-info"><div class="hsubj">${safeText(h.subject)}</div><div class="htask">${safeText(h.task)}</div><div class="hmeta">Due: Tomorrow</div></div><div class="status-chip pending">Due</div></div>`; });
+  var todayHtml = '';
+  for (var i = 0; i < tHW.length; i++) {
+    var h = tHW[i];
+    todayHtml += '<div class="hw-card"><div class="hw-check pending">📌</div><div class="hw-info"><div class="hsubj">' + h.subject + '</div><div class="htask">' + h.task + '</div><div class="hmeta">Due: Tomorrow</div></div><div class="status-chip pending">Due</div></div>';
+  }
   if(tHW.length === 0) todayHtml = '<p style="text-align:center; font-size:13px; color:var(--grey); margin-bottom:20px;">No new homework! Enjoy your day.</p>';
   document.getElementById('todayHWList').innerHTML = todayHtml;
 
-  let prevHtml = '';
-  pHW.forEach(h => { prevHtml += `<div class="hw-card ${h.done ? 'done' : 'pending'}"><div class="hw-check ${h.done ? 'done' : 'pending'}">${h.done ? '✓' : '!'}</div><div class="hw-info"><div class="hsubj">${safeText(h.subject)}</div><div class="htask">${safeText(h.task)}</div><div class="hmeta">Assigned on ${safeText(h.date)}</div></div><div class="status-chip ${h.done ? 'done' : 'pending'}">${h.done ? 'Done ✓' : 'Pending'}</div></div>`; });
+  var prevHtml = '';
+  for (var j = 0; j < pHW.length; j++) {
+    var h = pHW[j];
+    var state = h.done ? 'done' : 'pending';
+    var icon = h.done ? '✓' : '!';
+    var text = h.done ? 'Done ✓' : 'Pending';
+    prevHtml += '<div class="hw-card ' + state + '"><div class="hw-check ' + state + '">' + icon + '</div><div class="hw-info"><div class="hsubj">' + h.subject + '</div><div class="htask">' + h.task + '</div><div class="hmeta">Assigned on ' + h.date + '</div></div><div class="status-chip ' + state + '">' + text + '</div></div>';
+  }
   if(pHW.length === 0) prevHtml = '<p style="text-align:center; font-size:13px; color:var(--grey);">No past homework recorded yet.</p>';
   document.getElementById('prevHWList').innerHTML = prevHtml;
 }
 
 function populateProgress(s) {
-  const sorted = [...(s.subjects || [])].sort((a,b) => b.score - a.score);
-  let barsHtml = '<div style="font-family:\'Righteous\',cursive;font-size:15px;color:var(--dark);margin-bottom:12px;">Subject-wise Performance</div>';
-  sorted.forEach(sub => {
-    const cls = sub.score >= 85 ? 'strong' : sub.score >= 70 ? 'good' : sub.score >= 55 ? 'avg' : 'weak';
-    const pctColor = sub.score >= 85 ? '#059669' : sub.score >= 70 ? 'var(--blue)' : sub.score >= 55 ? '#B8860B' : 'var(--orange)';
-    barsHtml += `<div class="subj-bar-item"><div class="subj-bar-top"><div class="subj-bar-name">${safeText(sub.icon || '📚')} ${safeText(sub.name)}</div><div class="subj-bar-pct" style="color:${pctColor}">${sub.score}%</div></div><div class="bar-track"><div class="bar-fill ${cls}" style="width:${sub.score}%"></div></div></div>`;
-  });
+  var sorted = [];
+  if (s.subjects) sorted = s.subjects.slice().sort(function(a,b){ return b.score - a.score; });
+  
+  var barsHtml = '<div style="font-family:\'Righteous\',cursive;font-size:15px;color:var(--dark);margin-bottom:12px;">Subject-wise Performance</div>';
+  for (var i = 0; i < sorted.length; i++) {
+    var sub = sorted[i];
+    var cls = sub.score >= 85 ? 'strong' : sub.score >= 70 ? 'good' : sub.score >= 55 ? 'avg' : 'weak';
+    var pctColor = sub.score >= 85 ? '#059669' : sub.score >= 70 ? '#4361EE' : sub.score >= 55 ? '#B8860B' : '#FF6B35';
+    barsHtml += '<div class="subj-bar-item"><div class="subj-bar-top"><div class="subj-bar-name">' + (sub.icon || '📚') + ' ' + sub.name + '</div><div class="subj-bar-pct" style="color:' + pctColor + '">' + sub.score + '%</div></div><div class="bar-track"><div class="bar-fill ' + cls + '" style="width:' + sub.score + '%"></div></div></div>';
+  }
   if(sorted.length === 0) barsHtml += '<p style="font-size:13px; color:var(--grey);">No subjects recorded yet.</p>';
   document.getElementById('subjectBars').innerHTML = barsHtml;
 
   if (perfChart) { perfChart.destroy(); perfChart = null; }
-  const ctx = document.getElementById('perfChart').getContext('2d');
+  var ctx = document.getElementById('perfChart').getContext('2d');
   if(s.perfScores && s.perfScores.length > 0) {
     perfChart = new Chart(ctx, { type: 'line', data: { labels: s.perfLabels, datasets: [{ label: 'Overall Score %', data: s.perfScores, borderColor: '#4361EE', backgroundColor: 'rgba(67,97,238,0.12)', borderWidth: 3, pointBackgroundColor: '#E8522A', pointBorderColor: '#111118', pointBorderWidth: 2, pointRadius: 6, fill: true, tension: 0.4 }] }, options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 100, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'DM Sans', weight: '700' } } }, x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', weight: '700' } } } } } });
   } else {
@@ -311,119 +328,135 @@ function populateProgress(s) {
 }
 
 function scoreBg(score, total) {
-  if (!total || total === 0) return '#FFF1F1'; const p = score/total;
+  if (!total || total === 0) return '#FFF1F1'; 
+  var p = score/total;
   if (p >= 0.9) return '#E8FFF5'; if (p >= 0.75) return '#EEF6FF'; if (p >= 0.55) return '#FFFADC'; return '#FFF1F1';
 }
 
 function populateTests(s) {
-  let html = '';
-  (s.tests || []).forEach((t, i) => {
-    const bg = scoreBg(t.score, t.total);
-    const gt = t.grade === 'A+' ? '#059669' : t.grade === 'A' ? '#0369A1' : String(t.grade).includes('B') ? '#B45309' : '#C00';
-    const gc = t.grade === 'A+' ? 'grade-A-plus' : t.grade === 'A' ? 'grade-A' : String(t.grade).includes('B') ? 'grade-B' : 'grade-C';
-    html += `
-    ${t.latest ? '<div class="test-latest-badge">🔥 LATEST TEST</div>' : ''}
-    <div class="test-card ${t.latest ? 'latest' : ''}" id="tc${i}">
-      <div class="test-header" onclick="toggleTest(${i})">
-        <div class="test-score-circle ${gc}" style="background:${bg}"><div class="tscore" style="color:${gt}">${t.score}</div><div class="ttotal">/ ${t.total}</div></div>
-        <div class="test-info"><div class="test-subj">${safeText(t.subject)}</div><div class="test-chap">${safeText(t.chapter)}</div><div class="test-date">📅 ${safeText(t.date)}</div></div>
-        <div class="test-grade-badge" style="background:${bg};color:${gt}">${t.grade}</div>
-        <div class="expand-arrow">▼</div>
-      </div>
-      <div class="test-body">
-        <div class="test-sec-label note">📝 TEACHER'S NOTE</div>
-        <div class="note-box"><span>✏️</span><span>${safeText(t.note) || 'No additional notes.'}</span></div>
-      </div>
-    </div>`;
-  });
-  if ((s.tests || []).length === 0) html = '<p style="text-align:center; font-size:14px; color:var(--grey); margin-top:20px;">No tests recorded yet.</p>';
+  var html = '';
+  var tests = s.tests || [];
+  for (var i = 0; i < tests.length; i++) {
+    var t = tests[i];
+    var bg = scoreBg(t.score, t.total);
+    var gt = t.grade === 'A+' ? '#059669' : t.grade === 'A' ? '#0369A1' : String(t.grade).indexOf('B') !== -1 ? '#B45309' : '#C00';
+    var gc = t.grade === 'A+' ? 'grade-A-plus' : t.grade === 'A' ? 'grade-A' : String(t.grade).indexOf('B') !== -1 ? 'grade-B' : 'grade-C';
+    html += (t.latest ? '<div class="test-latest-badge">🔥 LATEST TEST</div>' : '') +
+    '<div class="test-card ' + (t.latest ? 'latest' : '') + '" id="tc' + i + '">' +
+      '<div class="test-header" onclick="toggleTest(' + i + ')">' +
+        '<div class="test-score-circle ' + gc + '" style="background:' + bg + '"><div class="tscore" style="color:' + gt + '">' + t.score + '</div><div class="ttotal">/ ' + t.total + '</div></div>' +
+        '<div class="test-info"><div class="test-subj">' + t.subject + '</div><div class="test-chap">' + t.chapter + '</div><div class="test-date">📅 ' + t.date + '</div></div>' +
+        '<div class="test-grade-badge" style="background:' + bg + ';color:' + gt + '">' + t.grade + '</div>' +
+        '<div class="expand-arrow">▼</div>' +
+      '</div>' +
+      '<div class="test-body">' +
+        '<div class="test-sec-label note">📝 TEACHER\'S NOTE</div>' +
+        '<div class="note-box"><span>✏️</span><span>' + (t.note || 'No additional notes.') + '</span></div>' +
+      '</div>' +
+    '</div>';
+  }
+  if (tests.length === 0) html = '<p style="text-align:center; font-size:14px; color:var(--grey); margin-top:20px;">No tests recorded yet.</p>';
   document.getElementById('testsList').innerHTML = html;
-  if ((s.tests || []).length > 0) toggleTest(0);
+  if (tests.length > 0) toggleTest(0);
 }
 
-function toggleTest(i) { const card = document.getElementById('tc' + i); if(card) card.classList.toggle('open'); }
+function toggleTest(i) { var card = document.getElementById('tc' + i); if(card) card.classList.toggle('open'); }
 
+// 🔴 INDESTRUCTIBLE SYLLABUS JAVASCRIPT
 function populateSyllabus(s) {
-  let html = '';
-  const emojis = { "Maths": "📐", "Science": "🔬", "Chemistry": "🧪", "Physics": "⚡", "Biology": "🧬", "English": "📖", "Hindi": "🗒️", "Marathi": "🏡", "SST": "🌍", "History": "📜", "Geography": "🗺️", "Civics": "🏛️", "Computer": "💻" };
+  var container = document.getElementById('syllabusList');
+  var html = '';
 
-  if (!s.syllabus || Object.keys(s.syllabus).length === 0) {
-    document.getElementById('syllabusList').innerHTML = '<p style="text-align:center; font-size:14px; color:var(--grey); margin-top:20px;">No syllabus data available.</p>';
+  if (!s || !s.syllabus) {
+    container.innerHTML = '<div style="text-align:center; padding:20px; color:gray;">No syllabus data found.</div>';
     return;
   }
 
-  Object.entries(s.syllabus).forEach(([subj, data], idx) => {
-    let cleanName = String(subj || "General").trim();
-    let icon = emojis[cleanName] || "📚";
+  var sylData = s.syllabus;
+  var index = 0;
 
-    let completedItems = Array.isArray(data.completed) ? data.completed : (Array.isArray(data.done) ? data.done : []);
-    let ongoingItems = Array.isArray(data.ongoing) ? data.ongoing : [];
-    let pendingItems = Array.isArray(data.pending) ? data.pending : [];
+  for (var subjectKey in sylData) {
+    if (!sylData.hasOwnProperty(subjectKey)) continue;
 
-    let total = completedItems.length + ongoingItems.length + pendingItems.length;
-    let doneCount = completedItems.length;
-    let fillPct = total > 0 ? Math.round((doneCount / total) * 100) : 0;
+    var cleanName = String(subjectKey).trim();
+    var icon = "📚";
 
-    let subHtml = `
-    <div class="syllabus-subject" id="syl${idx}">
-      <div class="syl-header" onclick="toggleSyl(${idx})">
-        <div class="syl-icon">${icon}</div>
-        <div class="syl-name">${safeText(cleanName)}</div>
-        <div class="syl-progress"><div class="syl-frac">${doneCount}/${total}</div><div class="syl-mini-bar"><div class="syl-mini-fill" style="width:${fillPct}%"></div></div></div>
-        <div class="syl-expand">▼</div>
-      </div>
-      <div class="syl-body">
-    `;
-    
-    completedItems.forEach(ch => { subHtml += `<div class="syl-chapter"><div class="chk done">✓</div><div class="cname done">${safeText(ch)}</div><div class="ctag done">Completed</div></div>`; });
-    ongoingItems.forEach(ch => { subHtml += `<div class="syl-chapter"><div class="chk" style="background:#FFF3E0; border-color:var(--orange); color:var(--orange);">↻</div><div class="cname" style="color:var(--dark);">${safeText(ch)}</div><div class="ctag" style="background:#FFF3E0; color:var(--orange); border: 1.5px solid var(--orange);">Ongoing</div></div>`; });
-    pendingItems.forEach(ch => { subHtml += `<div class="syl-chapter"><div class="chk pending">○</div><div class="cname pending">${safeText(ch)}</div><div class="ctag pending">Upcoming</div></div>`; });
-    
-    subHtml += `</div></div>`;
-    html += subHtml;
-  });
-  
-  document.getElementById('syllabusList').innerHTML = html;
+    var subjObj = sylData[subjectKey];
+
+    // Safely extract data arrays
+    var comp = (subjObj && subjObj.completed && subjObj.completed.length) ? subjObj.completed : [];
+    if (!comp.length && subjObj && subjObj.done && subjObj.done.length) comp = subjObj.done;
+
+    var ongo = (subjObj && subjObj.ongoing && subjObj.ongoing.length) ? subjObj.ongoing : [];
+    var pend = (subjObj && subjObj.pending && subjObj.pending.length) ? subjObj.pending : [];
+
+    var total = comp.length + ongo.length + pend.length;
+    var doneCount = comp.length;
+    var pct = total > 0 ? Math.round((doneCount / total) * 100) : 0;
+
+    html += '<div class="syllabus-subject" id="syl' + index + '">';
+    html += '  <div class="syl-header" onclick="toggleSyl(' + index + ')">';
+    html += '    <div class="syl-icon">' + icon + '</div>';
+    html += '    <div class="syl-name">' + cleanName + '</div>';
+    html += '    <div class="syl-progress"><div class="syl-frac">' + doneCount + '/' + total + '</div><div class="syl-mini-bar"><div class="syl-mini-fill" style="width:' + pct + '%"></div></div></div>';
+    html += '    <div class="syl-expand">▼</div>';
+    html += '  </div>';
+    html += '  <div class="syl-body">';
+
+    for (var i = 0; i < comp.length; i++) {
+      html += '<div class="syl-chapter"><div class="chk done">✓</div><div class="cname done">' + comp[i] + '</div><div class="ctag done">Completed</div></div>';
+    }
+    for (var i = 0; i < ongo.length; i++) {
+      html += '<div class="syl-chapter"><div class="chk" style="background:#FFF3E0; border-color:#FF6B35; color:#FF6B35;">↻</div><div class="cname" style="color:#111118;">' + ongo[i] + '</div><div class="ctag" style="background:#FFF3E0; color:#FF6B35; border: 1.5px solid #FF6B35;">Ongoing</div></div>';
+    }
+    for (var i = 0; i < pend.length; i++) {
+      html += '<div class="syl-chapter"><div class="chk pending">○</div><div class="cname pending">' + pend[i] + '</div><div class="ctag pending">Upcoming</div></div>';
+    }
+
+    html += '  </div>';
+    html += '</div>';
+    index++;
+  }
+
+  if (html === '') {
+    container.innerHTML = '<div style="text-align:center; padding:20px; color:gray;">No syllabus items yet.</div>';
+  } else {
+    container.innerHTML = html;
+  }
 }
 
-function toggleSyl(i) { const elem = document.getElementById('syl' + i); if(elem) elem.classList.toggle('open'); }
+function toggleSyl(i) { var elem = document.getElementById('syl' + i); if(elem) elem.classList.toggle('open'); }
 
 function populateLeaderboard() {
-  const lbContainer = document.getElementById('leaderboardList');
+  var lbContainer = document.getElementById('leaderboardList');
   if (!lbContainer) return;
-  let studentAverages = [];
+  var studentAverages = [];
 
-  for (let id in STUDENTS) {
-    let s = STUDENTS[id];
+  for (var id in STUDENTS) {
+    var s = STUDENTS[id];
     if (s.subjects && s.subjects.length > 0) {
-      let avg = Math.round(s.subjects.reduce((a,b) => a + b.score, 0) / s.subjects.length);
-      studentAverages.push({ name: s.name, avg: avg });
+      var sum = 0;
+      for (var k=0; k<s.subjects.length; k++) sum += s.subjects[k].score;
+      studentAverages.push({ name: s.name, avg: Math.round(sum / s.subjects.length) });
     }
   }
 
-  studentAverages.sort((a, b) => b.avg - a.avg);
-  let top5 = studentAverages.slice(0, 5);
-  let html = '';
+  studentAverages.sort(function(a, b) { return b.avg - a.avg; });
+  var top5 = studentAverages.slice(0, 5);
+  var html = '';
   
-  top5.forEach((student, index) => {
-    let rankNum = index + 1;
-    let medal = rankNum === 1 ? '<span class="lb-medal">🥇</span>' : rankNum === 2 ? '<span class="lb-medal">🥈</span>' : rankNum === 3 ? '<span class="lb-medal">🥉</span>' : `#${rankNum}`;
-    html += `<div class="lb-row"><div class="lb-rank">${medal}</div><div class="lb-name">${safeText(student.name)}</div><div class="lb-score">${student.avg}%</div></div>`;
-  });
+  for(var idx=0; idx<top5.length; idx++) {
+    var rankNum = idx + 1;
+    var medal = rankNum === 1 ? '<span class="lb-medal">🥇</span>' : rankNum === 2 ? '<span class="lb-medal">🥈</span>' : rankNum === 3 ? '<span class="lb-medal">🥉</span>' : '#' + rankNum;
+    html += '<div class="lb-row"><div class="lb-rank">' + medal + '</div><div class="lb-name">' + top5[idx].name + '</div><div class="lb-score">' + top5[idx].avg + '%</div></div>';
+  }
 
   if (top5.length === 0) html = '<div style="padding:16px; text-align:center; font-size:13px; color:var(--grey);">Not enough data for leaderboard yet.</div>';
   lbContainer.innerHTML = html;
 }
 
 document.getElementById('googleReviewBtn').addEventListener('click', function() {
-  for (let i = 0; i < 16; i++) {
-    const s = document.createElement('span'); s.className = 'sburst'; s.innerText = ['★','✦','●','▲'][Math.floor(Math.random()*4)];
-    s.style.color = ['#FFD93D','#FF6B35','#4361EE','#FF3D8A'][Math.floor(Math.random()*4)];
-    s.style.setProperty('--bx', (Math.random()*160-80)+'px'); s.style.setProperty('--by', (Math.random()*-150)+'px');
-    s.style.left = (35+Math.random()*30)+'%'; s.style.top='50%';
-    this.appendChild(s); setTimeout(()=>s.remove(), 750);
-  }
-  setTimeout(() => window.open('https://g.page/r/CdUkswJ0ZulAEBE/review'), 320);
+  setTimeout(function() { window.open('https://g.page/r/CdUkswJ0ZulAEBE/review'); }, 320);
 });
 </script>
 </body>
