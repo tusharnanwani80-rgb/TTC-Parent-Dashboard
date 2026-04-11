@@ -339,10 +339,14 @@ function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.cl
 
 // 🔴 THE BULLETPROOF OPEN DASHBOARD FUNCTION 🔴
 function openDashboard() { 
-  showScreen('dashboard'); // Forces the screen to transition instantly so it NEVER freezes
+  showScreen('dashboard'); // Forces the screen to transition instantly
   setTimeout(() => {
-    try { populateDashboard(); } 
-    catch(e) { console.error("Error loading dashboard data: ", e); }
+    try { 
+      populateDashboard(); 
+    } catch(e) { 
+      console.error("Error loading dashboard data: ", e); 
+      alert("A small error occurred loading the data. The rest of the dashboard will still work.");
+    }
   }, 50);
 }
 
@@ -375,12 +379,20 @@ function populateDashboard() {
 function populateHome(s) {
   document.getElementById('homeDateChip').textContent = new Date().toLocaleDateString('en-IN', { day:'numeric', month:'short', weekday:'short' });
 
-  const totalChaps = Object.values(s.syllabus).reduce((a,v) => a + (v.completed ? v.completed.length : 0) + (v.ongoing ? v.ongoing.length : 0) + (v.pending ? v.pending.length : 0), 0);
-  const doneChaps = Object.values(s.syllabus).reduce((a,v) => a + (v.completed ? v.completed.length : 0), 0);
-  const pct = totalChaps > 0 ? Math.round(doneChaps / totalChaps * 100) : 0;
+  // Extremely safe counter that will never crash even if data is missing
+  let totalChaps = 0;
+  let doneChaps = 0;
+  if (s.syllabus) {
+    Object.values(s.syllabus).forEach(v => {
+      totalChaps += (v.completed ? v.completed.length : 0) + (v.ongoing ? v.ongoing.length : 0) + (v.pending ? v.pending.length : 0) + (v.done ? v.done.length : 0);
+      doneChaps += (v.completed ? v.completed.length : 0) + (v.done ? v.done.length : 0);
+    });
+  }
+
+  const pct = totalChaps > 0 ? Math.round((doneChaps / totalChaps) * 100) : 0;
   const latestTest = (s.tests && s.tests.length > 0) ? s.tests[0] : { score: 0, total: 0 };
-  const pendingHW = s.previousHomework.filter(h => !h.done).length;
-  const avgScore = s.subjects.length > 0 ? Math.round(s.subjects.reduce((a,b) => a+b.score, 0) / s.subjects.length) : 0;
+  const pendingHW = (s.previousHomework || []).filter(h => !h.done).length;
+  const avgScore = (s.subjects && s.subjects.length > 0) ? Math.round(s.subjects.reduce((a,b) => a+b.score, 0) / s.subjects.length) : 0;
 
   document.getElementById('statGrid').innerHTML = `
     <div class="stat-card blue"><div class="sc-icon">📈</div><div class="sc-val">${avgScore}%</div><div class="sc-label">Avg. Score</div></div>
@@ -390,11 +402,16 @@ function populateHome(s) {
   `;
 
   let hwHtml = '<div class="hw-preview-title"><div class="hw-dot"></div> Today\'s Homework</div>';
-  s.todayHomework.forEach(h => { hwHtml += `<div class="hw-row"><div class="hw-subj" style="background:${h.subjectColor || '#4361EE'}22;border-color:${h.subjectColor || '#4361EE'};color:${h.subjectColor || '#4361EE'}">${h.subject}</div><div class="hw-task">${h.task}</div></div>`; });
-  if(s.todayHomework.length === 0) hwHtml += '<div style="font-size:13px; color:var(--grey); padding-top:5px;">No homework assigned today! 🎉</div>';
+  if (s.todayHomework && s.todayHomework.length > 0) {
+    s.todayHomework.forEach(h => {
+      hwHtml += `<div class="hw-row"><div class="hw-subj" style="background:${h.subjectColor || '#4361EE'}22;border-color:${h.subjectColor || '#4361EE'};color:${h.subjectColor || '#4361EE'}">${h.subject}</div><div class="hw-task">${h.task}</div></div>`;
+    });
+  } else {
+    hwHtml += '<div style="font-size:13px; color:var(--grey); padding-top:5px;">No homework assigned today! 🎉</div>';
+  }
   document.getElementById('homeTodayHW').innerHTML = hwHtml;
 
-  document.getElementById('teacherMsgText').textContent = s.teacherMsg;
+  document.getElementById('teacherMsgText').textContent = s.teacherMsg || "—";
   document.getElementById('teacherMsgSign').textContent = s.teacherMsgSign || ""; 
 }
 
@@ -470,16 +487,23 @@ function populateSyllabus(s) {
   let html = '';
   const emojis = { "Maths": "📐", "Science": "🔬", "Chemistry": "🧪", "Physics": "⚡", "Biology": "🧬", "English": "📖", "Hindi": "🗒️", "Marathi": "🏡", "SST": "🌍", "History": "📜", "Geography": "🗺️", "Civics": "🏛️", "Computer": "💻" };
 
+  if (!s.syllabus || Object.keys(s.syllabus).length === 0) {
+    document.getElementById('syllabusList').innerHTML = '<p style="text-align:center; font-size:14px; color:var(--grey); margin-top:20px;">No syllabus data available.</p>';
+    return;
+  }
+
   Object.entries(s.syllabus).forEach(([subj, data], idx) => {
-    let cleanName = subj;
+    let cleanName = String(subj).trim();
     let icon = emojis[cleanName] || "📚";
 
-    const completedItems = data.completed || [];
+    // Bulletproof array fallback
+    const completedItems = data.completed || data.done || [];
     const ongoingItems = data.ongoing || [];
     const pendingItems = data.pending || [];
+    
     const total = completedItems.length + ongoingItems.length + pendingItems.length;
     const doneCount = completedItems.length;
-    const fillPct = total > 0 ? Math.round(doneCount / total * 100) : 0;
+    const fillPct = total > 0 ? Math.round((doneCount / total) * 100) : 0;
     
     html += `
     <div class="syllabus-subject" id="syl${idx}">
@@ -497,7 +521,6 @@ function populateSyllabus(s) {
     </div>`;
   });
   
-  if (Object.keys(s.syllabus).length === 0) html = '<p style="text-align:center; font-size:14px; color:var(--grey); margin-top:20px;">No syllabus data available.</p>';
   document.getElementById('syllabusList').innerHTML = html;
 }
 
