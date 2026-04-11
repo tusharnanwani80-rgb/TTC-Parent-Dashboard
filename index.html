@@ -32,7 +32,7 @@
     <div class="welcome-hey">👋 Namaste!</div>
     <div class="welcome-name" id="welcomeParentMsg">Welcome!</div>
     <div class="welcome-sub" id="welcomeSubMsg">Tushar Tuition Classes · Wardha</div>
-    <button class="welcome-enter-btn" onclick="openDashboard()">📊 Open Dashboard →</button>
+    <div class="welcome-enter-btn" onclick="openDashboard()">📊 Open Dashboard →</div>
   </div>
 </div>
 
@@ -131,7 +131,9 @@ async function loginStudent() {
   const btn = document.querySelector('.id-btn');
   if (!raw) return;
 
-  btn.innerText = "⏳ Checking..."; btn.disabled = true; err.classList.remove('show');
+  btn.innerText = "⏳ Checking..."; 
+  btn.disabled = true; 
+  err.classList.remove('show');
 
   try {
     const response = await fetch(WEB_APP_URL);
@@ -145,21 +147,25 @@ async function loginStudent() {
         document.getElementById('welcomeParentMsg').textContent = `Hello, ${currentStudent.parentName}! 🙏`;
         document.getElementById('welcomeSubMsg').textContent = `${currentStudent.name} · ${currentStudent.class} · ${currentStudent.board}`;
         
-        document.getElementById('idScreen').style.display = 'none';
-        document.getElementById('welcomeScreen').style.display = 'flex';
+        document.getElementById('idScreen').classList.remove('active');
+        document.getElementById('welcomeScreen').classList.add('active');
         
         playWelcomeSound();
         confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 }, colors: ['#E8522A','#FFD93D','#4361EE','#FF3D8A','#06D6A0'] });
       } else {
-        err.innerHTML = `❌ ID "${raw}" not found in database.`; err.classList.add('show');
+        err.innerHTML = `❌ ID "${raw}" not found in database.`; 
+        err.classList.add('show');
       }
     } else {
-      err.innerHTML = "❌ Database Error: " + result.msg; err.classList.add('show');
+      err.innerHTML = "❌ Database Error: " + result.msg; 
+      err.classList.add('show');
     }
   } catch (error) {
-    err.innerHTML = "⚠️ " + error.message; err.classList.add('show');
+    err.innerHTML = "⚠️ " + error.message; 
+    err.classList.add('show');
   }
-  btn.innerText = "🚀 View Dashboard"; btn.disabled = false;
+  btn.innerText = "🚀 View Dashboard"; 
+  btn.disabled = false;
 }
 
 function playWelcomeSound() {
@@ -177,13 +183,13 @@ function playWelcomeSound() {
   } catch(e) {}
 }
 
-// 🔴 THE NEW INDESTRUCTIBLE BUTTON FUNCTION
+// 🔴 THE NEW "INSTANT-CHANGE" BUTTON
 function openDashboard() {
-  // 1. Force the UI to instantly hide the Welcome Screen and show the Dashboard
-  document.getElementById('welcomeScreen').style.display = 'none';
-  document.getElementById('dashboard').style.display = 'block';
+  // 1. Instantly hide Welcome Screen and show Dashboard
+  document.getElementById('welcomeScreen').classList.remove('active');
+  document.getElementById('dashboard').classList.add('active');
 
-  // 2. Load the data using raw, crash-proof Javascript
+  // 2. Wait 50 milliseconds to let the phone draw the new screen, THEN load the data
   setTimeout(function() {
     populateDashboard();
   }, 50);
@@ -212,12 +218,13 @@ function populateDashboard() {
   for (var key in STUDENTS) { if (STUDENTS[key] === s) { foundId = key; break; } }
   document.getElementById('hdrId').textContent = foundId;
 
-  populateHome(s); 
-  populateHomework(s); 
-  populateProgress(s); 
-  populateTests(s); 
-  populateSyllabus(s); 
-  populateLeaderboard(); 
+  // We are calling these functions separately. If one errors, the others still work!
+  try { populateHome(s); } catch(e) { console.error("Home issue", e); }
+  try { populateHomework(s); } catch(e) { console.error("HW issue", e); }
+  try { populateProgress(s); } catch(e) { console.error("Progress issue", e); }
+  try { populateTests(s); } catch(e) { console.error("Tests issue", e); }
+  try { populateSyllabus(s); } catch(e) { console.error("Syllabus issue", e); }
+  try { populateLeaderboard(); } catch(e) { console.error("LB issue", e); }
 }
 
 function populateHome(s) {
@@ -226,9 +233,9 @@ function populateHome(s) {
   // RAW JAVASCRIPT MATH (Crash Proof)
   var totalChaps = 0;
   var doneChaps = 0;
+  
   if (s.syllabus) {
     for (var k in s.syllabus) {
-      if (!s.syllabus.hasOwnProperty(k)) continue;
       var obj = s.syllabus[k];
       if (obj) {
         var c = (obj.completed && obj.completed.length) ? obj.completed.length : ((obj.done && obj.done.length) ? obj.done.length : 0);
@@ -242,6 +249,7 @@ function populateHome(s) {
 
   var pct = totalChaps > 0 ? Math.round((doneChaps / totalChaps) * 100) : 0;
   var latestTest = (s.tests && s.tests.length > 0) ? s.tests[0] : { score: 0, total: 0 };
+  
   var pendingHW = 0;
   if (s.previousHomework) {
     for (var i = 0; i < s.previousHomework.length; i++) {
@@ -267,15 +275,20 @@ function populateHome(s) {
   if (s.todayHomework && s.todayHomework.length > 0) {
     for (var i = 0; i < s.todayHomework.length; i++) {
       var h = s.todayHomework[i];
-      hwHtml += '<div class="hw-row"><div class="hw-subj" style="background:' + (h.subjectColor || '#4361EE') + '22;border-color:' + (h.subjectColor || '#4361EE') + ';color:' + (h.subjectColor || '#4361EE') + '">' + h.subject + '</div><div class="hw-task">' + h.task + '</div></div>';
+      var safeSubj = String(h.subject).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      var safeTask = String(h.task).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      hwHtml += '<div class="hw-row"><div class="hw-subj" style="background:' + (h.subjectColor || '#4361EE') + '22;border-color:' + (h.subjectColor || '#4361EE') + ';color:' + (h.subjectColor || '#4361EE') + '">' + safeSubj + '</div><div class="hw-task">' + safeTask + '</div></div>';
     }
   } else {
     hwHtml += '<div style="font-size:13px; color:var(--grey); padding-top:5px;">No homework assigned today! 🎉</div>';
   }
   document.getElementById('homeTodayHW').innerHTML = hwHtml;
 
-  document.getElementById('teacherMsgText').textContent = s.teacherMsg || "—";
-  document.getElementById('teacherMsgSign').textContent = s.teacherMsgSign || ""; 
+  var safeMsg = s.teacherMsg ? String(s.teacherMsg).replace(/</g, "&lt;").replace(/>/g, "&gt;") : "—";
+  var safeSign = s.teacherMsgSign ? String(s.teacherMsgSign).replace(/</g, "&lt;").replace(/>/g, "&gt;") : "";
+  
+  document.getElementById('teacherMsgText').innerHTML = safeMsg;
+  document.getElementById('teacherMsgSign').innerHTML = safeSign; 
 }
 
 function populateHomework(s) {
@@ -287,7 +300,9 @@ function populateHomework(s) {
   var todayHtml = '';
   for (var i = 0; i < tHW.length; i++) {
     var h = tHW[i];
-    todayHtml += '<div class="hw-card"><div class="hw-check pending">📌</div><div class="hw-info"><div class="hsubj">' + h.subject + '</div><div class="htask">' + h.task + '</div><div class="hmeta">Due: Tomorrow</div></div><div class="status-chip pending">Due</div></div>';
+    var safeSubj = String(h.subject).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    var safeTask = String(h.task).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    todayHtml += '<div class="hw-card"><div class="hw-check pending">📌</div><div class="hw-info"><div class="hsubj">' + safeSubj + '</div><div class="htask">' + safeTask + '</div><div class="hmeta">Due: Tomorrow</div></div><div class="status-chip pending">Due</div></div>';
   }
   if(tHW.length === 0) todayHtml = '<p style="text-align:center; font-size:13px; color:var(--grey); margin-bottom:20px;">No new homework! Enjoy your day.</p>';
   document.getElementById('todayHWList').innerHTML = todayHtml;
@@ -295,10 +310,13 @@ function populateHomework(s) {
   var prevHtml = '';
   for (var j = 0; j < pHW.length; j++) {
     var h = pHW[j];
+    var safeSubj = String(h.subject).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    var safeTask = String(h.task).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    var safeDate = String(h.date).replace(/</g, "&lt;").replace(/>/g, "&gt;");
     var state = h.done ? 'done' : 'pending';
     var icon = h.done ? '✓' : '!';
     var text = h.done ? 'Done ✓' : 'Pending';
-    prevHtml += '<div class="hw-card ' + state + '"><div class="hw-check ' + state + '">' + icon + '</div><div class="hw-info"><div class="hsubj">' + h.subject + '</div><div class="htask">' + h.task + '</div><div class="hmeta">Assigned on ' + h.date + '</div></div><div class="status-chip ' + state + '">' + text + '</div></div>';
+    prevHtml += '<div class="hw-card ' + state + '"><div class="hw-check ' + state + '">' + icon + '</div><div class="hw-info"><div class="hsubj">' + safeSubj + '</div><div class="htask">' + safeTask + '</div><div class="hmeta">Assigned on ' + safeDate + '</div></div><div class="status-chip ' + state + '">' + text + '</div></div>';
   }
   if(pHW.length === 0) prevHtml = '<p style="text-align:center; font-size:13px; color:var(--grey);">No past homework recorded yet.</p>';
   document.getElementById('prevHWList').innerHTML = prevHtml;
@@ -313,7 +331,8 @@ function populateProgress(s) {
     var sub = sorted[i];
     var cls = sub.score >= 85 ? 'strong' : sub.score >= 70 ? 'good' : sub.score >= 55 ? 'avg' : 'weak';
     var pctColor = sub.score >= 85 ? '#059669' : sub.score >= 70 ? '#4361EE' : sub.score >= 55 ? '#B8860B' : '#FF6B35';
-    barsHtml += '<div class="subj-bar-item"><div class="subj-bar-top"><div class="subj-bar-name">' + (sub.icon || '📚') + ' ' + sub.name + '</div><div class="subj-bar-pct" style="color:' + pctColor + '">' + sub.score + '%</div></div><div class="bar-track"><div class="bar-fill ' + cls + '" style="width:' + sub.score + '%"></div></div></div>';
+    var safeName = String(sub.name).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    barsHtml += '<div class="subj-bar-item"><div class="subj-bar-top"><div class="subj-bar-name">' + (sub.icon || '📚') + ' ' + safeName + '</div><div class="subj-bar-pct" style="color:' + pctColor + '">' + sub.score + '%</div></div><div class="bar-track"><div class="bar-fill ' + cls + '" style="width:' + sub.score + '%"></div></div></div>';
   }
   if(sorted.length === 0) barsHtml += '<p style="font-size:13px; color:var(--grey);">No subjects recorded yet.</p>';
   document.getElementById('subjectBars').innerHTML = barsHtml;
@@ -341,17 +360,23 @@ function populateTests(s) {
     var bg = scoreBg(t.score, t.total);
     var gt = t.grade === 'A+' ? '#059669' : t.grade === 'A' ? '#0369A1' : String(t.grade).indexOf('B') !== -1 ? '#B45309' : '#C00';
     var gc = t.grade === 'A+' ? 'grade-A-plus' : t.grade === 'A' ? 'grade-A' : String(t.grade).indexOf('B') !== -1 ? 'grade-B' : 'grade-C';
+    
+    var safeSubj = String(t.subject).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    var safeChap = String(t.chapter).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    var safeDate = String(t.date).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    var safeNote = t.note ? String(t.note).replace(/</g, "&lt;").replace(/>/g, "&gt;") : 'No additional notes.';
+
     html += (t.latest ? '<div class="test-latest-badge">🔥 LATEST TEST</div>' : '') +
     '<div class="test-card ' + (t.latest ? 'latest' : '') + '" id="tc' + i + '">' +
       '<div class="test-header" onclick="toggleTest(' + i + ')">' +
         '<div class="test-score-circle ' + gc + '" style="background:' + bg + '"><div class="tscore" style="color:' + gt + '">' + t.score + '</div><div class="ttotal">/ ' + t.total + '</div></div>' +
-        '<div class="test-info"><div class="test-subj">' + t.subject + '</div><div class="test-chap">' + t.chapter + '</div><div class="test-date">📅 ' + t.date + '</div></div>' +
+        '<div class="test-info"><div class="test-subj">' + safeSubj + '</div><div class="test-chap">' + safeChap + '</div><div class="test-date">📅 ' + safeDate + '</div></div>' +
         '<div class="test-grade-badge" style="background:' + bg + ';color:' + gt + '">' + t.grade + '</div>' +
         '<div class="expand-arrow">▼</div>' +
       '</div>' +
       '<div class="test-body">' +
         '<div class="test-sec-label note">📝 TEACHER\'S NOTE</div>' +
-        '<div class="note-box"><span>✏️</span><span>' + (t.note || 'No additional notes.') + '</span></div>' +
+        '<div class="note-box"><span>✏️</span><span>' + safeNote + '</span></div>' +
       '</div>' +
     '</div>';
   }
@@ -362,64 +387,65 @@ function populateTests(s) {
 
 function toggleTest(i) { var card = document.getElementById('tc' + i); if(card) card.classList.toggle('open'); }
 
-// 🔴 INDESTRUCTIBLE SYLLABUS JAVASCRIPT
+// 🔴 THE NEW INDESTRUCTIBLE SYLLABUS FETCHER
 function populateSyllabus(s) {
   var container = document.getElementById('syllabusList');
-  var html = '';
+  container.innerHTML = ''; 
 
   if (!s || !s.syllabus) {
-    container.innerHTML = '<div style="text-align:center; padding:20px; color:gray;">No syllabus data found.</div>';
+    container.innerHTML = '<p style="text-align:center; color:var(--grey); margin-top:20px;">No syllabus data available.</p>';
     return;
   }
 
-  var sylData = s.syllabus;
+  var html = '';
   var index = 0;
 
-  for (var subjectKey in sylData) {
-    if (!sylData.hasOwnProperty(subjectKey)) continue;
+  // It natively grabs whatever subject is in the Google Sheet
+  for (var subj in s.syllabus) {
+    var data = s.syllabus[subj];
+    if (!data) continue;
 
-    var cleanName = String(subjectKey).trim();
-    var icon = "📚";
+    var subjectName = String(subj).replace(/</g, "&lt;").replace(/>/g, "&gt;").trim();
+    if (subjectName === "") subjectName = "General";
 
-    var subjObj = sylData[subjectKey];
-
-    // Safely extract data arrays
-    var comp = (subjObj && subjObj.completed && subjObj.completed.length) ? subjObj.completed : [];
-    if (!comp.length && subjObj && subjObj.done && subjObj.done.length) comp = subjObj.done;
-
-    var ongo = (subjObj && subjObj.ongoing && subjObj.ongoing.length) ? subjObj.ongoing : [];
-    var pend = (subjObj && subjObj.pending && subjObj.pending.length) ? subjObj.pending : [];
+    var comp = Array.isArray(data.completed) ? data.completed : [];
+    var ongo = Array.isArray(data.ongoing) ? data.ongoing : [];
+    var pend = Array.isArray(data.pending) ? data.pending : [];
 
     var total = comp.length + ongo.length + pend.length;
     var doneCount = comp.length;
     var pct = total > 0 ? Math.round((doneCount / total) * 100) : 0;
 
-    html += '<div class="syllabus-subject" id="syl' + index + '">';
-    html += '  <div class="syl-header" onclick="toggleSyl(' + index + ')">';
-    html += '    <div class="syl-icon">' + icon + '</div>';
-    html += '    <div class="syl-name">' + cleanName + '</div>';
-    html += '    <div class="syl-progress"><div class="syl-frac">' + doneCount + '/' + total + '</div><div class="syl-mini-bar"><div class="syl-mini-fill" style="width:' + pct + '%"></div></div></div>';
-    html += '    <div class="syl-expand">▼</div>';
-    html += '  </div>';
-    html += '  <div class="syl-body">';
+    html += `
+    <div class="syllabus-subject" id="syl${index}">
+      <div class="syl-header" onclick="document.getElementById('syl${index}').classList.toggle('open')">
+        <div class="syl-icon">📚</div>
+        <div class="syl-name">${subjectName}</div>
+        <div class="syl-progress">
+          <div class="syl-frac">${doneCount}/${total}</div>
+          <div class="syl-mini-bar"><div class="syl-mini-fill" style="width:${pct}%"></div></div>
+        </div>
+        <div class="syl-expand">▼</div>
+      </div>
+      <div class="syl-body">
+    `;
 
-    for (var i = 0; i < comp.length; i++) {
-      html += '<div class="syl-chapter"><div class="chk done">✓</div><div class="cname done">' + comp[i] + '</div><div class="ctag done">Completed</div></div>';
+    for (var i=0; i<comp.length; i++) {
+      html += `<div class="syl-chapter"><div class="chk done">✓</div><div class="cname done">${String(comp[i]).replace(/</g,"&lt;")}</div><div class="ctag done">Completed</div></div>`;
     }
-    for (var i = 0; i < ongo.length; i++) {
-      html += '<div class="syl-chapter"><div class="chk" style="background:#FFF3E0; border-color:#FF6B35; color:#FF6B35;">↻</div><div class="cname" style="color:#111118;">' + ongo[i] + '</div><div class="ctag" style="background:#FFF3E0; color:#FF6B35; border: 1.5px solid #FF6B35;">Ongoing</div></div>';
+    for (var i=0; i<ongo.length; i++) {
+      html += `<div class="syl-chapter"><div class="chk" style="background:#FFF3E0; border-color:var(--orange); color:var(--orange);">↻</div><div class="cname" style="color:var(--dark);">${String(ongo[i]).replace(/</g,"&lt;")}</div><div class="ctag" style="background:#FFF3E0; color:var(--orange); border: 1.5px solid var(--orange);">Ongoing</div></div>`;
     }
-    for (var i = 0; i < pend.length; i++) {
-      html += '<div class="syl-chapter"><div class="chk pending">○</div><div class="cname pending">' + pend[i] + '</div><div class="ctag pending">Upcoming</div></div>';
+    for (var i=0; i<pend.length; i++) {
+      html += `<div class="syl-chapter"><div class="chk pending">○</div><div class="cname pending">${String(pend[i]).replace(/</g,"&lt;")}</div><div class="ctag pending">Upcoming</div></div>`;
     }
 
-    html += '  </div>';
-    html += '</div>';
+    html += `</div></div>`;
     index++;
   }
 
   if (html === '') {
-    container.innerHTML = '<div style="text-align:center; padding:20px; color:gray;">No syllabus items yet.</div>';
+    container.innerHTML = '<p style="text-align:center; color:var(--grey); margin-top:20px;">No syllabus data available.</p>';
   } else {
     container.innerHTML = html;
   }
@@ -448,7 +474,8 @@ function populateLeaderboard() {
   for(var idx=0; idx<top5.length; idx++) {
     var rankNum = idx + 1;
     var medal = rankNum === 1 ? '<span class="lb-medal">🥇</span>' : rankNum === 2 ? '<span class="lb-medal">🥈</span>' : rankNum === 3 ? '<span class="lb-medal">🥉</span>' : '#' + rankNum;
-    html += '<div class="lb-row"><div class="lb-rank">' + medal + '</div><div class="lb-name">' + top5[idx].name + '</div><div class="lb-score">' + top5[idx].avg + '%</div></div>';
+    var safeName = String(top5[idx].name).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    html += '<div class="lb-row"><div class="lb-rank">' + medal + '</div><div class="lb-name">' + safeName + '</div><div class="lb-score">' + top5[idx].avg + '%</div></div>';
   }
 
   if (top5.length === 0) html = '<div style="padding:16px; text-align:center; font-size:13px; color:var(--grey);">Not enough data for leaderboard yet.</div>';
