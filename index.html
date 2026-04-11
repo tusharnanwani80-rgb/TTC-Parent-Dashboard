@@ -288,15 +288,12 @@ async function loginStudent() {
   const btn = document.querySelector('.id-btn');
   if (!raw) return;
 
-  btn.innerText = "⏳ Checking Database..."; btn.disabled = true; err.classList.remove('show');
+  btn.innerText = "⏳ Checking..."; btn.disabled = true; err.classList.remove('show');
 
   try {
-    if (WEB_APP_URL.includes('PASTE_YOUR')) throw new Error("You forgot to paste your Web App URL into the HTML file!");
     const response = await fetch(WEB_APP_URL);
     const textData = await response.text(); 
-    
-    let result;
-    try { result = JSON.parse(textData); } catch (e) { throw new Error("Google blocked the connection. Deploy the script with access set to 'Anyone'."); }
+    let result = JSON.parse(textData); 
 
     if (result.status === 'ok') {
       STUDENTS = result.data;
@@ -308,14 +305,13 @@ async function loginStudent() {
         playWelcomeSound();
         confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 }, colors: ['#E8522A','#FFD93D','#4361EE','#FF3D8A','#06D6A0'] });
       } else {
-        err.innerHTML = `❌ ID "${raw}" not found in your Google Sheet.`; err.classList.add('show');
+        err.innerHTML = `❌ ID "${raw}" not found in database.`; err.classList.add('show');
       }
     } else {
       err.innerHTML = "❌ Database Error: " + result.msg; err.classList.add('show');
     }
   } catch (error) {
     err.innerHTML = "⚠️ " + error.message; err.classList.add('show');
-    document.getElementById('studentIdInput').style.borderColor = 'var(--pink)';
   }
   btn.innerText = "🚀 View Dashboard"; btn.disabled = false;
 }
@@ -335,18 +331,20 @@ function playWelcomeSound() {
   } catch(e) {}
 }
 
-function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+function showScreen(id) { 
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); 
+  document.getElementById(id).classList.add('active'); 
+}
 
-// 🔴 THE BULLETPROOF OPEN DASHBOARD FUNCTION 🔴
+// 🔴 THE BULLETPROOF BUTTON FUNCTION 🔴
 function openDashboard() { 
-  showScreen('dashboard'); // Forces the screen to transition instantly
+  // 1. Force the screen to change instantly so it NEVER freezes
+  showScreen('dashboard'); 
+  
+  // 2. Load the data safely
   setTimeout(() => {
-    try { 
-      populateDashboard(); 
-    } catch(e) { 
-      console.error("Error loading dashboard data: ", e); 
-      alert("A small error occurred loading the data. The rest of the dashboard will still work.");
-    }
+    try { populateDashboard(); } 
+    catch(e) { console.error("Error loading dashboard: ", e); }
   }, 50);
 }
 
@@ -364,28 +362,30 @@ function switchTab(tab, btn) {
 
 function populateDashboard() {
   const s = currentStudent;
-  document.getElementById('hdrName').textContent = String(s.name);
-  document.getElementById('hdrClass').textContent = s.class + ' · ' + s.board;
-  document.getElementById('hdrId').textContent = Object.keys(STUDENTS).find(k => STUDENTS[k] === s);
+  document.getElementById('hdrName').textContent = s.name || "—";
+  document.getElementById('hdrClass').textContent = (s.class || "—") + ' · ' + (s.board || "—");
+  document.getElementById('hdrId').textContent = Object.keys(STUDENTS).find(k => STUDENTS[k] === s) || "—";
 
+  // Isolate each tab so one error doesn't break the whole app
   try { populateHome(s); } catch(e) { console.error("Home Error", e); }
   try { populateHomework(s); } catch(e) { console.error("HW Error", e); }
   try { populateProgress(s); } catch(e) { console.error("Progress Error", e); }
   try { populateTests(s); } catch(e) { console.error("Tests Error", e); }
   try { populateSyllabus(s); } catch(e) { console.error("Syllabus Error", e); }
-  try { populateLeaderboard(); } catch(e) { console.error("Leaderboard Error", e); }
+  try { populateLeaderboard(); } catch(e) { console.error("LB Error", e); }
 }
 
 function populateHome(s) {
   document.getElementById('homeDateChip').textContent = new Date().toLocaleDateString('en-IN', { day:'numeric', month:'short', weekday:'short' });
 
-  // Extremely safe counter that will never crash even if data is missing
-  let totalChaps = 0;
-  let doneChaps = 0;
+  // Ultra-safe syllabus counter
+  let totalChaps = 0; let doneChaps = 0;
   if (s.syllabus) {
     Object.values(s.syllabus).forEach(v => {
-      totalChaps += (v.completed ? v.completed.length : 0) + (v.ongoing ? v.ongoing.length : 0) + (v.pending ? v.pending.length : 0) + (v.done ? v.done.length : 0);
-      doneChaps += (v.completed ? v.completed.length : 0) + (v.done ? v.done.length : 0);
+      let c = Array.isArray(v.completed) ? v.completed.length : (Array.isArray(v.done) ? v.done.length : 0);
+      let o = Array.isArray(v.ongoing) ? v.ongoing.length : 0;
+      let p = Array.isArray(v.pending) ? v.pending.length : 0;
+      totalChaps += (c + o + p); doneChaps += c;
     });
   }
 
@@ -403,9 +403,7 @@ function populateHome(s) {
 
   let hwHtml = '<div class="hw-preview-title"><div class="hw-dot"></div> Today\'s Homework</div>';
   if (s.todayHomework && s.todayHomework.length > 0) {
-    s.todayHomework.forEach(h => {
-      hwHtml += `<div class="hw-row"><div class="hw-subj" style="background:${h.subjectColor || '#4361EE'}22;border-color:${h.subjectColor || '#4361EE'};color:${h.subjectColor || '#4361EE'}">${h.subject}</div><div class="hw-task">${h.task}</div></div>`;
-    });
+    s.todayHomework.forEach(h => { hwHtml += `<div class="hw-row"><div class="hw-subj" style="background:${h.subjectColor || '#4361EE'}22;border-color:${h.subjectColor || '#4361EE'};color:${h.subjectColor || '#4361EE'}">${h.subject}</div><div class="hw-task">${h.task}</div></div>`; });
   } else {
     hwHtml += '<div style="font-size:13px; color:var(--grey); padding-top:5px;">No homework assigned today! 🎉</div>';
   }
@@ -416,22 +414,23 @@ function populateHome(s) {
 }
 
 function populateHomework(s) {
-  document.getElementById('todayHWCount').textContent = s.todayHomework.length + ' Tasks';
-  document.getElementById('prevHWCount').textContent = s.previousHomework.length + ' Entries';
+  const tHW = s.todayHomework || []; const pHW = s.previousHomework || [];
+  document.getElementById('todayHWCount').textContent = tHW.length + ' Tasks';
+  document.getElementById('prevHWCount').textContent = pHW.length + ' Entries';
 
   let todayHtml = '';
-  s.todayHomework.forEach(h => { todayHtml += `<div class="hw-card"><div class="hw-check pending">📌</div><div class="hw-info"><div class="hsubj">${h.subject}</div><div class="htask">${h.task}</div><div class="hmeta">Due: Tomorrow</div></div><div class="status-chip pending">Due</div></div>`; });
-  if(s.todayHomework.length === 0) todayHtml = '<p style="text-align:center; font-size:13px; color:var(--grey); margin-bottom:20px;">No new homework! Enjoy your day.</p>';
+  tHW.forEach(h => { todayHtml += `<div class="hw-card"><div class="hw-check pending">📌</div><div class="hw-info"><div class="hsubj">${h.subject}</div><div class="htask">${h.task}</div><div class="hmeta">Due: Tomorrow</div></div><div class="status-chip pending">Due</div></div>`; });
+  if(tHW.length === 0) todayHtml = '<p style="text-align:center; font-size:13px; color:var(--grey); margin-bottom:20px;">No new homework! Enjoy your day.</p>';
   document.getElementById('todayHWList').innerHTML = todayHtml;
 
   let prevHtml = '';
-  s.previousHomework.forEach(h => { prevHtml += `<div class="hw-card ${h.done ? 'done' : 'pending'}"><div class="hw-check ${h.done ? 'done' : 'pending'}">${h.done ? '✓' : '!'}</div><div class="hw-info"><div class="hsubj">${h.subject}</div><div class="htask">${h.task}</div><div class="hmeta">Assigned on ${h.date}</div></div><div class="status-chip ${h.done ? 'done' : 'pending'}">${h.done ? 'Done ✓' : 'Pending'}</div></div>`; });
-  if(s.previousHomework.length === 0) prevHtml = '<p style="text-align:center; font-size:13px; color:var(--grey);">No past homework recorded yet.</p>';
+  pHW.forEach(h => { prevHtml += `<div class="hw-card ${h.done ? 'done' : 'pending'}"><div class="hw-check ${h.done ? 'done' : 'pending'}">${h.done ? '✓' : '!'}</div><div class="hw-info"><div class="hsubj">${h.subject}</div><div class="htask">${h.task}</div><div class="hmeta">Assigned on ${h.date}</div></div><div class="status-chip ${h.done ? 'done' : 'pending'}">${h.done ? 'Done ✓' : 'Pending'}</div></div>`; });
+  if(pHW.length === 0) prevHtml = '<p style="text-align:center; font-size:13px; color:var(--grey);">No past homework recorded yet.</p>';
   document.getElementById('prevHWList').innerHTML = prevHtml;
 }
 
 function populateProgress(s) {
-  const sorted = [...s.subjects].sort((a,b) => b.score - a.score);
+  const sorted = [...(s.subjects || [])].sort((a,b) => b.score - a.score);
   let barsHtml = '<div style="font-family:\'Righteous\',cursive;font-size:15px;color:var(--dark);margin-bottom:12px;">Subject-wise Performance</div>';
   sorted.forEach(sub => {
     const cls = sub.score >= 85 ? 'strong' : sub.score >= 70 ? 'good' : sub.score >= 55 ? 'avg' : 'weak';
@@ -457,7 +456,7 @@ function scoreBg(score, total) {
 
 function populateTests(s) {
   let html = '';
-  s.tests.forEach((t, i) => {
+  (s.tests || []).forEach((t, i) => {
     const bg = scoreBg(t.score, t.total);
     const gt = t.grade === 'A+' ? '#059669' : t.grade === 'A' ? '#0369A1' : String(t.grade).includes('B') ? '#B45309' : '#C00';
     const gc = t.grade === 'A+' ? 'grade-A-plus' : t.grade === 'A' ? 'grade-A' : String(t.grade).includes('B') ? 'grade-B' : 'grade-C';
@@ -476,9 +475,9 @@ function populateTests(s) {
       </div>
     </div>`;
   });
-  if (s.tests.length === 0) html = '<p style="text-align:center; font-size:14px; color:var(--grey); margin-top:20px;">No tests recorded yet.</p>';
+  if ((s.tests || []).length === 0) html = '<p style="text-align:center; font-size:14px; color:var(--grey); margin-top:20px;">No tests recorded yet.</p>';
   document.getElementById('testsList').innerHTML = html;
-  if (s.tests.length > 0) toggleTest(0);
+  if ((s.tests || []).length > 0) toggleTest(0);
 }
 
 function toggleTest(i) { const card = document.getElementById('tc' + i); if(card) card.classList.toggle('open'); }
@@ -493,13 +492,13 @@ function populateSyllabus(s) {
   }
 
   Object.entries(s.syllabus).forEach(([subj, data], idx) => {
-    let cleanName = String(subj).trim();
+    let cleanName = subj;
     let icon = emojis[cleanName] || "📚";
 
-    // Bulletproof array fallback
-    const completedItems = data.completed || data.done || [];
-    const ongoingItems = data.ongoing || [];
-    const pendingItems = data.pending || [];
+    // ULTRA-SAFE ARRAY CHECK (This prevents the freeze)
+    const completedItems = Array.isArray(data.completed) ? data.completed : (Array.isArray(data.done) ? data.done : []);
+    const ongoingItems = Array.isArray(data.ongoing) ? data.ongoing : [];
+    const pendingItems = Array.isArray(data.pending) ? data.pending : [];
     
     const total = completedItems.length + ongoingItems.length + pendingItems.length;
     const doneCount = completedItems.length;
