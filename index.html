@@ -217,6 +217,7 @@ function populateDashboard() {
 function populateHome(s) {
   document.getElementById('homeDateChip').textContent = new Date().toLocaleDateString('en-IN', { day:'numeric', month:'short', weekday:'short' });
 
+  // SAFE COUNTER: Looks for "completed", "ongoing", AND "pending" without crashing
   let totalChaps = 0; let doneChaps = 0;
   if (s.syllabus) {
     Object.values(s.syllabus).forEach(v => {
@@ -224,10 +225,35 @@ function populateHome(s) {
         let c = Array.isArray(v.completed) ? v.completed.length : (Array.isArray(v.done) ? v.done.length : 0);
         let o = Array.isArray(v.ongoing) ? v.ongoing.length : 0;
         let p = Array.isArray(v.pending) ? v.pending.length : 0;
-        totalChaps += (c + o + p); doneChaps += c;
+        totalChaps += (c + o + p); 
+        doneChaps += c;
       }
     });
   }
+
+  const pct = totalChaps > 0 ? Math.round((doneChaps / totalChaps) * 100) : 0;
+  const latestTest = (s.tests && s.tests.length > 0) ? s.tests[0] : { score: 0, total: 0 };
+  const pendingHW = (s.previousHomework || []).filter(h => !h.done).length;
+  const avgScore = (s.subjects && s.subjects.length > 0) ? Math.round(s.subjects.reduce((a,b) => a+b.score, 0) / s.subjects.length) : 0;
+
+  document.getElementById('statGrid').innerHTML = `
+    <div class="stat-card blue"><div class="sc-icon">📈</div><div class="sc-val">${avgScore}%</div><div class="sc-label">Avg. Score</div></div>
+    <div class="stat-card orange"><div class="sc-icon">📝</div><div class="sc-val">${latestTest.score}/${latestTest.total}</div><div class="sc-label">Latest Test</div></div>
+    <div class="stat-card green"><div class="sc-icon">✅</div><div class="sc-val">${pct}%</div><div class="sc-label">Syllabus Done</div></div>
+    <div class="stat-card pink"><div class="sc-icon">⚠️</div><div class="sc-val">${pendingHW}</div><div class="sc-label">HW Pending</div></div>
+  `;
+
+  let hwHtml = '<div class="hw-preview-title"><div class="hw-dot"></div> Today\'s Homework</div>';
+  if (s.todayHomework && s.todayHomework.length > 0) {
+    s.todayHomework.forEach(h => { hwHtml += `<div class="hw-row"><div class="hw-subj" style="background:${h.subjectColor || '#4361EE'}22;border-color:${h.subjectColor || '#4361EE'};color:${h.subjectColor || '#4361EE'}">${h.subject}</div><div class="hw-task">${h.task}</div></div>`; });
+  } else {
+    hwHtml += '<div style="font-size:13px; color:var(--grey); padding-top:5px;">No homework assigned today! 🎉</div>';
+  }
+  document.getElementById('homeTodayHW').innerHTML = hwHtml;
+
+  document.getElementById('teacherMsgText').textContent = s.teacherMsg || "—";
+  document.getElementById('teacherMsgSign').textContent = s.teacherMsgSign || ""; 
+}
 
   const pct = totalChaps > 0 ? Math.round((doneChaps / totalChaps) * 100) : 0;
   const latestTest = (s.tests && s.tests.length > 0) ? s.tests[0] : { score: 0, total: 0 };
@@ -336,6 +362,7 @@ function populateSyllabus(s) {
       let cleanName = String(subj || "General").trim();
       let icon = emojis[cleanName] || "📚";
 
+      // SAFE ARRAYS: Prevents crashes by defaulting to empty lists if data is missing
       let completedItems = Array.isArray(data.completed) ? data.completed : (Array.isArray(data.done) ? data.done : []);
       let ongoingItems = Array.isArray(data.ongoing) ? data.ongoing : [];
       let pendingItems = Array.isArray(data.pending) ? data.pending : [];
