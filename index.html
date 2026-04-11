@@ -7,7 +7,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&family=Righteous&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}:root{--blue:#4361EE;--orange:#FF6B35;--lime:#C8FF00;--pink:#FF3D8A;--white:#FFFFFF;--off:#F5F4FF;--dark:#111118;--grey:#6B6B80;--light:#EDEDF7;--green:#25D366;--rust:#E8522A;--yellow:#FFD93D;--teal:#06D6A0;--purple:#A78BFA}html,body{height:100%}body{font-family:'DM Sans',sans-serif;background:var(--off);background-image:repeating-linear-gradient(-45deg,transparent,transparent 18px,rgba(67,97,238,0.04) 18px,rgba(67,97,238,0.04) 19px);min-height:100vh}.screen{display:none}.screen.active{display:flex;flex-direction:column}
 #idScreen{min-height:100vh;align-items:center;justify-content:center;padding:24px}.id-card{width:100%;max-width:380px;background:var(--white);border:3px solid var(--dark);border-radius:28px;padding:36px 28px;box-shadow:6px 6px 0 var(--dark);text-align:center;animation:popIn 0.4s cubic-bezier(.34,1.3,.64,1)}.id-logo{width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--rust);box-shadow:4px 4px 0 var(--rust);margin-bottom:16px}.id-title{font-family:'Fredoka One',cursive;font-size:26px;color:var(--dark)}.id-title span{color:var(--rust)}.id-sub{font-size:13px;font-weight:600;color:var(--grey);margin-top:4px;margin-bottom:24px}.id-label{font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--grey);text-align:left;margin-bottom:6px}.id-input{width:100%;padding:14px 16px;font-family:'DM Sans',sans-serif;font-size:18px;font-weight:700;border:3px solid var(--dark);border-radius:14px;background:var(--off);color:var(--dark);outline:none;box-shadow:3px 3px 0 var(--dark);letter-spacing:2px;transition:border-color 0.2s,box-shadow 0.2s;text-align:center}.id-input:focus{border-color:var(--blue);box-shadow:3px 3px 0 var(--blue)}.id-btn{width:100%;padding:16px;font-family:'Fredoka One',cursive;font-size:20px;background:var(--rust);color:#fff;border:3px solid var(--dark);border-radius:14px;box-shadow:4px 4px 0 var(--dark);cursor:pointer;transition:transform 0.1s,box-shadow 0.1s;margin-top:20px}.id-btn:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--dark)}.id-error{display:none;background:#FFE5E5;border:2px solid var(--pink);border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;color:#C00;margin-top:14px}.id-error.show{display:block;animation:shake 0.4s}@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}#welcomeScreen{min-height:100vh;align-items:center;justify-content:center;background:linear-gradient(135deg,#ffecd2 0%,#fcb69f 100%);padding:24px;text-align:center}.welcome-inner{animation:welcomeIn 0.5s cubic-bezier(.34,1.3,.64,1)}.welcome-logo{width:100px;height:100px;border-radius:50%;border:4px solid #fff;box-shadow:0 6px 0 var(--rust),0 12px 24px rgba(232,82,42,.3);margin-bottom:20px;object-fit:cover}.welcome-hey{font-family:'Fredoka One',cursive;font-size:22px;color:var(--rust);letter-spacing:1px;margin-bottom:4px}.welcome-name{font-family:'Fredoka One',cursive;font-size:42px;color:var(--dark);line-height:1.1;margin-bottom:8px}.welcome-sub{font-size:15px;font-weight:700;color:var(--grey);margin-bottom:30px}.welcome-enter-btn{display:inline-block;padding:16px 40px;font-family:'Fredoka One',cursive;font-size:22px;background:var(--rust);color:#fff;border:3px solid var(--dark);border-radius:50px;box-shadow:5px 5px 0 var(--dark);cursor:pointer;position:relative;z-index:99;animation:pulse 1.5s infinite}@keyframes pulse{0%,100%{box-shadow:5px 5px 0 var(--dark)}50%{box-shadow:7px 7px 0 var(--dark)}}@keyframes welcomeIn{from{opacity:0;transform:scale(0.7) rotate(-5deg)}to{opacity:1;transform:scale(1) rotate(0)}}#dashboard{min-height:100vh;padding-bottom:80px}.dash-header{background:var(--white);border-bottom:3px solid var(--dark);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 3px 0 var(--dark)}.header-left{display:flex;align-items:center;gap:12px}.header-logo{width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid var(--rust)}.header-title{font-family:'Fredoka One',cursive;font-size:20px;color:var(--dark)}.header-title span{color:var(--rust)}.header-student{text-align:right}.header-sname{font-size:14px;font-weight:800;color:var(--dark)}.header-sclass{font-size:11px;font-weight:600;color:var(--grey)}.header-badge{display:inline-block;padding:2px 10px;font-size:10px;font-weight:800;letter-spacing:1px;background:var(--blue);color:#fff;border-radius:50px;margin-top:2px}.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:3px solid var(--dark);display:flex;z-index:200;box-shadow:0 -3px 0 var(--dark)}.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px 8px;cursor:pointer;font-size:10px;font-weight:800;color:var(--grey);border:none;background:none;transition:color 0.2s;gap:3px}.nav-item .nav-icon{font-size:20px}.nav-item.active{color:var(--rust)}.tab-panel{display:none;padding:20px 16px}.tab-panel.active{display:block;animation:fadeUp 0.3s ease}@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}@keyframes popIn{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}.sec-title{font-family:'Fredoka One',cursive;font-size:22px;color:var(--dark);margin-bottom:16px;display:flex;align-items:center;gap:8px}.sec-title .sec-chip{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:800;background:var(--lime);color:var(--dark);padding:3px 10px;border-radius:50px;border:2px solid var(--dark);letter-spacing:0.5px}.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}.stat-card{background:var(--white);border:2.5px solid var(--dark);border-radius:18px;padding:16px 14px;box-shadow:4px 4px 0 var(--dark);text-align:center}.stat-card .sc-icon{font-size:28px;margin-bottom:4px}.stat-card .sc-val{font-family:'Fredoka One',cursive;font-size:32px;color:var(--dark);line-height:1}.stat-card .sc-label{font-size:11px;font-weight:700;color:var(--grey);margin-top:2px}.stat-card.blue{border-color:var(--blue);box-shadow:4px 4px 0 var(--blue)}.stat-card.orange{border-color:var(--orange);box-shadow:4px 4px 0 var(--orange)}.stat-card.green{border-color:var(--teal);box-shadow:4px 4px 0 var(--teal)}.stat-card.pink{border-color:var(--pink);box-shadow:4px 4px 0 var(--pink)}.home-hw-preview{background:var(--white);border:2.5px solid var(--dark);border-radius:18px;padding:16px;box-shadow:4px 4px 0 var(--dark);margin-bottom:16px}.hw-preview-title{font-family:'Righteous',cursive;font-size:15px;color:var(--dark);margin-bottom:12px;display:flex;align-items:center;gap:6px}.hw-dot{width:8px;height:8px;border-radius:50%;background:var(--orange)}.hw-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1.5px dashed var(--light)}.hw-row:last-child{border-bottom:none;padding-bottom:0}.hw-subj{font-size:11px;font-weight:800;padding:3px 10px;border-radius:50px;border:2px solid var(--dark)}.hw-task{font-size:13px;font-weight:600;color:var(--dark);flex:1}.teacher-msg{background:linear-gradient(135deg,var(--blue) 0%,#7B8FF7 100%);border:2.5px solid var(--dark);border-radius:18px;padding:16px;box-shadow:4px 4px 0 var(--dark);color:#fff}.tmsg-label{font-size:10px;font-weight:800;letter-spacing:2px;opacity:0.8;margin-bottom:6px}.tmsg-text{font-size:14px;font-weight:700;line-height:1.5}.tmsg-sign{font-size:12px;opacity:0.9;font-weight:800;margin-top:12px;text-align:right}.hw-section-title{font-family:'Righteous',cursive;font-size:16px;color:var(--dark);margin:18px 0 10px;display:flex;align-items:center;gap:8px}.hw-badge{font-size:11px;font-weight:800;padding:3px 10px;border-radius:50px;border:2px solid var(--dark);background:var(--yellow)}.hw-card{background:var(--white);border:2.5px solid var(--dark);border-radius:16px;padding:14px 16px;box-shadow:3px 3px 0 var(--dark);margin-bottom:10px;display:flex;align-items:flex-start;gap:12px}.hw-card.done{opacity:0.65;background:#F0FFF6;border-color:var(--teal);box-shadow:3px 3px 0 var(--teal)}.hw-card.pending{border-color:var(--orange);box-shadow:3px 3px 0 var(--orange)}.hw-check{width:28px;height:28px;border-radius:50%;border:2.5px solid var(--dark);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px}.hw-check.done{background:var(--teal);border-color:var(--teal)}.hw-check.pending{background:#FFF3E0}.hw-info{flex:1}.hw-info .hsubj{font-size:11px;font-weight:800;letter-spacing:1px;color:var(--rust);text-transform:uppercase;margin-bottom:3px}.hw-info .htask{font-size:14px;font-weight:700;color:var(--dark);line-height:1.4}.hw-info .hmeta{font-size:11px;font-weight:600;color:var(--grey);margin-top:4px}.status-chip{font-size:10px;font-weight:800;padding:3px 8px;border-radius:50px;border:2px solid var(--dark);flex-shrink:0}.status-chip.done{background:var(--teal);color:#fff;border-color:var(--teal)}.status-chip.pending{background:var(--orange);color:#fff;border-color:var(--orange)}.subject-bars{margin-bottom:24px}.subj-bar-item{margin-bottom:14px}.subj-bar-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}.subj-bar-name{font-size:14px;font-weight:800;color:var(--dark);display:flex;align-items:center;gap:6px}.subj-bar-pct{font-family:'Righteous',cursive;font-size:15px}.bar-track{height:12px;background:var(--light);border-radius:50px;border:2px solid var(--dark);overflow:hidden}.bar-fill{height:100%;border-radius:50px;transition:width 1s cubic-bezier(.34,1.3,.64,1)}.bar-fill.strong{background:var(--teal)}.bar-fill.good{background:var(--blue)}.bar-fill.avg{background:var(--yellow)}.bar-fill.weak{background:var(--orange)}.chart-wrap{background:var(--white);border:2.5px solid var(--dark);border-radius:18px;padding:16px;box-shadow:4px 4px 0 var(--dark);margin-bottom:16px}.chart-title{font-family:'Righteous',cursive;font-size:15px;color:var(--dark);margin-bottom:14px}.test-latest-badge{display:inline-block;padding:4px 12px;font-size:10px;font-weight:900;letter-spacing:2px;background:var(--rust);color:#fff;border:2px solid var(--dark);border-radius:50px;margin-bottom:10px}.test-card{background:var(--white);border:2.5px solid var(--dark);border-radius:18px;margin-bottom:14px;overflow:hidden;box-shadow:4px 4px 0 var(--dark)}.test-card.latest{border-color:var(--blue);box-shadow:4px 4px 0 var(--blue)}.test-header{padding:16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:background 0.2s}.test-header:hover{background:var(--off)}.test-score-circle{width:58px;height:58px;border-radius:50%;border:3px solid var(--dark);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;box-shadow:3px 3px 0 var(--dark)}.test-score-circle .tscore{font-family:'Fredoka One',cursive;font-size:20px;line-height:1}.test-score-circle .ttotal{font-size:10px;font-weight:800;color:var(--grey)}.grade-A-plus{background:#EAFFDA}.grade-A{background:#E0F8FF}.grade-B{background:#FFF8DC}.grade-C{background:#FFEAEA}.test-info{flex:1}.test-subj{font-size:12px;font-weight:800;letter-spacing:1px;color:var(--rust);text-transform:uppercase}.test-chap{font-size:15px;font-weight:800;color:var(--dark);margin-top:2px}.test-date{font-size:12px;font-weight:600;color:var(--grey);margin-top:3px}.test-grade-badge{font-family:'Fredoka One',cursive;font-size:20px;padding:6px 14px;border-radius:12px;border:2.5px solid var(--dark)}.expand-arrow{font-size:16px;transition:transform 0.3s;color:var(--grey)}.test-card.open .expand-arrow{transform:rotate(180deg)}.test-body{display:none;border-top:2px solid var(--light);padding:16px}.test-card.open .test-body{display:block;animation:fadeUp 0.2s ease}.test-sec-label{font-size:10px;font-weight:900;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;color:var(--purple)}.note-box{background:#F5F0FF;border:2px solid var(--purple);border-radius:12px;padding:12px 14px;font-size:13px;font-weight:600;color:#5B21B6;line-height:1.5;display:flex;align-items:flex-start;gap:8px}.syllabus-subject{margin-bottom:14px;border:2.5px solid var(--dark);border-radius:18px;overflow:hidden;box-shadow:3px 3px 0 var(--dark)}.syl-header{padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;background:var(--white);transition:background 0.2s}.syl-header:hover{background:var(--off)}.syl-icon{font-size:24px}.syl-name{font-family:'Righteous',cursive;font-size:17px;color:var(--dark);flex:1}.syl-progress{display:flex;align-items:center;gap:8px}.syl-frac{font-size:12px;font-weight:800;color:var(--grey)}.syl-mini-bar{width:50px;height:6px;background:var(--light);border-radius:50px;border:1.5px solid var(--dark);overflow:hidden}.syl-mini-fill{height:100%;background:var(--teal);border-radius:50px}.syl-expand{font-size:14px;color:var(--grey);transition:transform 0.3s}.syllabus-subject.open .syl-expand{transform:rotate(180deg)}.syl-body{display:none;border-top:2px solid var(--light);padding:12px 16px;background:var(--off)}.syllabus-subject.open .syl-body{display:block}.syl-chapter{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1.5px dashed var(--light);font-size:13px;font-weight:700}.syl-chapter:last-child{border-bottom:none}.syl-chapter .chk{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}.syl-chapter .chk.done{background:var(--teal);color:#fff;border:2px solid var(--teal)}.syl-chapter .chk.pending{background:var(--light);border:2px solid var(--grey);color:var(--grey)}.syl-chapter .cname{flex:1}.syl-chapter .cname.done{color:var(--dark)}.syl-chapter .cname.pending{color:var(--grey)}.syl-chapter .ctag{font-size:10px;font-weight:800;padding:2px 8px;border-radius:50px}.syl-chapter .ctag.done{background:#E8FFF8;color:#059669;border:1.5px solid var(--teal)}.syl-chapter .ctag.pending{background:#FFF3E0;color:var(--orange);border:1.5px solid var(--orange)}.review-cta-card{background:linear-gradient(135deg,var(--rust) 0%,#FF8C00 100%);border:2.5px solid var(--dark);border-radius:18px;padding:20px 16px;box-shadow:5px 5px 0 var(--dark);text-align:center;margin-bottom:20px}.rcta-title{font-family:'Fredoka One',cursive;font-size:26px;color:#fff;margin-bottom:6px}.rcta-sub{font-size:13px;font-weight:700;color:rgba(255,255,255,0.85);margin-bottom:18px;line-height:1.5}.google-btn{display:inline-block;padding:14px 28px;font-family:'Fredoka One',cursive;font-size:18px;background:#fff;color:var(--dark);border:3px solid var(--dark);border-radius:50px;box-shadow:4px 4px 0 var(--dark);cursor:pointer;position:relative;overflow:hidden;transition:transform 0.1s,box-shadow 0.1s}.reviews-embed-wrap{background:var(--white);border:2.5px solid var(--dark);border-radius:18px;padding:16px;box-shadow:4px 4px 0 var(--dark)}.rev-head{margin-bottom:14px;display:flex;align-items:center;gap:10px}.rev-head-title{font-family:'Righteous',cursive;font-size:18px;color:var(--dark)}.rev-stars{color:var(--yellow);font-size:18px;letter-spacing:2px}.separator{height:2px;background:var(--light);border-radius:2px;margin:20px 0}.lb-row{display:flex;align-items:center;padding:14px 16px;border-bottom:2px solid var(--light)}.lb-row:last-child{border-bottom:none}.lb-rank{width:35px;font-family:'Fredoka One',cursive;font-size:18px;color:var(--grey);text-align:center}.lb-medal{font-size:24px}.lb-name{flex:1;font-size:14px;font-weight:800;color:var(--dark);padding-left:10px}.lb-score{font-family:'Righteous',cursive;font-size:16px;color:var(--blue);background:#EEF2FF;padding:4px 10px;border-radius:8px;border:2px solid var(--blue)}
@@ -126,6 +125,12 @@ let STUDENTS = {};
 let currentStudent = null;
 let perfChart = null;
 
+// THE SHIELD: Safely escapes text so it never breaks HTML
+function safeText(str) {
+  if (str == null) return '';
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 async function loginStudent() {
   const raw = document.getElementById('studentIdInput').value.trim().toUpperCase();
   const err = document.getElementById('idError');
@@ -143,19 +148,19 @@ async function loginStudent() {
       STUDENTS = result.data;
       if (STUDENTS[raw]) {
         currentStudent = STUDENTS[raw];
-        document.getElementById('welcomeParentMsg').textContent = `Hello, ${currentStudent.parentName}! 🙏`;
-        document.getElementById('welcomeSubMsg').textContent = `${currentStudent.name} · ${currentStudent.class} · ${currentStudent.board}`;
+        document.getElementById('welcomeParentMsg').textContent = `Hello, ${safeText(currentStudent.parentName)}! 🙏`;
+        document.getElementById('welcomeSubMsg').textContent = `${safeText(currentStudent.name)} · ${safeText(currentStudent.class)} · ${safeText(currentStudent.board)}`;
         showScreen('welcomeScreen');
         playWelcomeSound();
         confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 }, colors: ['#E8522A','#FFD93D','#4361EE','#FF3D8A','#06D6A0'] });
       } else {
-        err.innerHTML = `❌ ID "${raw}" not found in database.`; err.classList.add('show');
+        err.innerHTML = `❌ ID "${safeText(raw)}" not found.`; err.classList.add('show');
       }
     } else {
-      err.innerHTML = "❌ Database Error: " + result.msg; err.classList.add('show');
+      err.innerHTML = "❌ Database Error: " + safeText(result.msg); err.classList.add('show');
     }
   } catch (error) {
-    err.innerHTML = "⚠️ " + error.message; err.classList.add('show');
+    err.innerHTML = "⚠️ " + safeText(error.message); err.classList.add('show');
   }
   btn.innerText = "🚀 View Dashboard"; btn.disabled = false;
 }
@@ -180,19 +185,12 @@ function showScreen(id) {
   document.getElementById(id).classList.add('active'); 
 }
 
+// 🔴 THE NEW SAFE BUTTON: Forces UI to transition before loading data
 function openDashboard() { 
-  try {
-    showScreen('dashboard'); // Force screen change immediately
-    setTimeout(() => {
-      try {
-        populateDashboard(); 
-      } catch(e) {
-        alert("Error populating data: " + e.message);
-      }
-    }, 100);
-  } catch(e) {
-    alert("Crash Alert: " + e.message);
-  }
+  showScreen('dashboard'); 
+  document.getElementById('welcomeScreen').classList.remove('active');
+  // Staggered loading to prevent freezing
+  setTimeout(() => { populateDashboard(); }, 50);
 }
 
 document.getElementById('studentIdInput').addEventListener('keydown', e => {
@@ -207,22 +205,34 @@ function switchTab(tab, btn) {
   btn.classList.add('active');
 }
 
+// 🔴 ISOLATED LOADING: If one section fails, the rest of the app still loads
 function populateDashboard() {
   const s = currentStudent;
-  if (!s) { alert("Student data is missing."); return; }
+  if (!s) return;
   
-  document.getElementById('hdrName').textContent = s.name || "—";
-  document.getElementById('hdrClass').textContent = (s.class || "—") + ' · ' + (s.board || "—");
+  document.getElementById('hdrName').textContent = safeText(s.name) || "—";
+  document.getElementById('hdrClass').textContent = safeText(s.class) + ' · ' + safeText(s.board);
+  
   let foundId = "—";
   for (let key in STUDENTS) { if (STUDENTS[key] === s) { foundId = key; break; } }
-  document.getElementById('hdrId').textContent = foundId;
+  document.getElementById('hdrId').textContent = safeText(foundId);
 
-  try { populateHome(s); } catch(e) { alert("Home Error: " + e.message); }
-  try { populateHomework(s); } catch(e) { alert("HW Error: " + e.message); }
-  try { populateProgress(s); } catch(e) { alert("Progress Error: " + e.message); }
-  try { populateTests(s); } catch(e) { alert("Tests Error: " + e.message); }
-  try { populateSyllabus(s); } catch(e) { alert("Syllabus Error: " + e.message); }
-  try { populateLeaderboard(); } catch(e) { alert("LB Error: " + e.message); }
+  // Staggered Loading prevents the browser thread from locking up
+  setTimeout(() => { try{ populateHome(s); } catch(e){ logErr('Home',e); } }, 50);
+  setTimeout(() => { try{ populateHomework(s); } catch(e){ logErr('HW',e); } }, 100);
+  setTimeout(() => { try{ populateProgress(s); } catch(e){ logErr('Progress',e); } }, 150);
+  setTimeout(() => { try{ populateTests(s); } catch(e){ logErr('Tests',e); } }, 200);
+  setTimeout(() => { try{ populateSyllabus(s); } catch(e){ logErr('Syllabus',e); } }, 250);
+  setTimeout(() => { try{ populateLeaderboard(); } catch(e){ logErr('LB',e); } }, 300);
+}
+
+// 🔴 ERROR CATCHER: Prints errors to the screen instead of silently freezing
+function logErr(section, e) {
+  console.error(section, e);
+  let errBox = document.createElement('div');
+  errBox.style = "background:#FFE5E5;color:#C00;padding:10px;margin:10px;border-radius:8px;font-size:12px;font-weight:bold;border:2px solid #C00;";
+  errBox.innerText = `⚠️ Crash in ${section} Tab:\n${e.message}`;
+  document.querySelector('.tab-panel.active').prepend(errBox);
 }
 
 function populateHome(s) {
@@ -254,14 +264,14 @@ function populateHome(s) {
 
   let hwHtml = '<div class="hw-preview-title"><div class="hw-dot"></div> Today\'s Homework</div>';
   if (s.todayHomework && s.todayHomework.length > 0) {
-    s.todayHomework.forEach(h => { hwHtml += `<div class="hw-row"><div class="hw-subj" style="background:${h.subjectColor || '#4361EE'}22;border-color:${h.subjectColor || '#4361EE'};color:${h.subjectColor || '#4361EE'}">${h.subject}</div><div class="hw-task">${h.task}</div></div>`; });
+    s.todayHomework.forEach(h => { hwHtml += `<div class="hw-row"><div class="hw-subj" style="background:${h.subjectColor || '#4361EE'}22;border-color:${h.subjectColor || '#4361EE'};color:${h.subjectColor || '#4361EE'}">${safeText(h.subject)}</div><div class="hw-task">${safeText(h.task)}</div></div>`; });
   } else {
     hwHtml += '<div style="font-size:13px; color:var(--grey); padding-top:5px;">No homework assigned today! 🎉</div>';
   }
   document.getElementById('homeTodayHW').innerHTML = hwHtml;
 
-  document.getElementById('teacherMsgText').textContent = s.teacherMsg || "—";
-  document.getElementById('teacherMsgSign').textContent = s.teacherMsgSign || ""; 
+  document.getElementById('teacherMsgText').textContent = safeText(s.teacherMsg) || "—";
+  document.getElementById('teacherMsgSign').textContent = safeText(s.teacherMsgSign) || ""; 
 }
 
 function populateHomework(s) {
@@ -270,12 +280,12 @@ function populateHomework(s) {
   document.getElementById('prevHWCount').textContent = pHW.length + ' Entries';
 
   let todayHtml = '';
-  tHW.forEach(h => { todayHtml += `<div class="hw-card"><div class="hw-check pending">📌</div><div class="hw-info"><div class="hsubj">${h.subject}</div><div class="htask">${h.task}</div><div class="hmeta">Due: Tomorrow</div></div><div class="status-chip pending">Due</div></div>`; });
+  tHW.forEach(h => { todayHtml += `<div class="hw-card"><div class="hw-check pending">📌</div><div class="hw-info"><div class="hsubj">${safeText(h.subject)}</div><div class="htask">${safeText(h.task)}</div><div class="hmeta">Due: Tomorrow</div></div><div class="status-chip pending">Due</div></div>`; });
   if(tHW.length === 0) todayHtml = '<p style="text-align:center; font-size:13px; color:var(--grey); margin-bottom:20px;">No new homework! Enjoy your day.</p>';
   document.getElementById('todayHWList').innerHTML = todayHtml;
 
   let prevHtml = '';
-  pHW.forEach(h => { prevHtml += `<div class="hw-card ${h.done ? 'done' : 'pending'}"><div class="hw-check ${h.done ? 'done' : 'pending'}">${h.done ? '✓' : '!'}</div><div class="hw-info"><div class="hsubj">${h.subject}</div><div class="htask">${h.task}</div><div class="hmeta">Assigned on ${h.date}</div></div><div class="status-chip ${h.done ? 'done' : 'pending'}">${h.done ? 'Done ✓' : 'Pending'}</div></div>`; });
+  pHW.forEach(h => { prevHtml += `<div class="hw-card ${h.done ? 'done' : 'pending'}"><div class="hw-check ${h.done ? 'done' : 'pending'}">${h.done ? '✓' : '!'}</div><div class="hw-info"><div class="hsubj">${safeText(h.subject)}</div><div class="htask">${safeText(h.task)}</div><div class="hmeta">Assigned on ${safeText(h.date)}</div></div><div class="status-chip ${h.done ? 'done' : 'pending'}">${h.done ? 'Done ✓' : 'Pending'}</div></div>`; });
   if(pHW.length === 0) prevHtml = '<p style="text-align:center; font-size:13px; color:var(--grey);">No past homework recorded yet.</p>';
   document.getElementById('prevHWList').innerHTML = prevHtml;
 }
@@ -286,7 +296,7 @@ function populateProgress(s) {
   sorted.forEach(sub => {
     const cls = sub.score >= 85 ? 'strong' : sub.score >= 70 ? 'good' : sub.score >= 55 ? 'avg' : 'weak';
     const pctColor = sub.score >= 85 ? '#059669' : sub.score >= 70 ? 'var(--blue)' : sub.score >= 55 ? '#B8860B' : 'var(--orange)';
-    barsHtml += `<div class="subj-bar-item"><div class="subj-bar-top"><div class="subj-bar-name">${sub.icon || '📚'} ${sub.name}</div><div class="subj-bar-pct" style="color:${pctColor}">${sub.score}%</div></div><div class="bar-track"><div class="bar-fill ${cls}" style="width:${sub.score}%"></div></div></div>`;
+    barsHtml += `<div class="subj-bar-item"><div class="subj-bar-top"><div class="subj-bar-name">${safeText(sub.icon || '📚')} ${safeText(sub.name)}</div><div class="subj-bar-pct" style="color:${pctColor}">${sub.score}%</div></div><div class="bar-track"><div class="bar-fill ${cls}" style="width:${sub.score}%"></div></div></div>`;
   });
   if(sorted.length === 0) barsHtml += '<p style="font-size:13px; color:var(--grey);">No subjects recorded yet.</p>';
   document.getElementById('subjectBars').innerHTML = barsHtml;
@@ -316,13 +326,13 @@ function populateTests(s) {
     <div class="test-card ${t.latest ? 'latest' : ''}" id="tc${i}">
       <div class="test-header" onclick="toggleTest(${i})">
         <div class="test-score-circle ${gc}" style="background:${bg}"><div class="tscore" style="color:${gt}">${t.score}</div><div class="ttotal">/ ${t.total}</div></div>
-        <div class="test-info"><div class="test-subj">${t.subject}</div><div class="test-chap">${t.chapter}</div><div class="test-date">📅 ${t.date}</div></div>
+        <div class="test-info"><div class="test-subj">${safeText(t.subject)}</div><div class="test-chap">${safeText(t.chapter)}</div><div class="test-date">📅 ${safeText(t.date)}</div></div>
         <div class="test-grade-badge" style="background:${bg};color:${gt}">${t.grade}</div>
         <div class="expand-arrow">▼</div>
       </div>
       <div class="test-body">
         <div class="test-sec-label note">📝 TEACHER'S NOTE</div>
-        <div class="note-box"><span>✏️</span><span>${t.note || 'No additional notes.'}</span></div>
+        <div class="note-box"><span>✏️</span><span>${safeText(t.note) || 'No additional notes.'}</span></div>
       </div>
     </div>`;
   });
@@ -335,19 +345,20 @@ function toggleTest(i) { const card = document.getElementById('tc' + i); if(card
 
 function populateSyllabus(s) {
   let html = '';
+  const emojis = { "Maths": "📐", "Science": "🔬", "Chemistry": "🧪", "Physics": "⚡", "Biology": "🧬", "English": "📖", "Hindi": "🗒️", "Marathi": "🏡", "SST": "🌍", "History": "📜", "Geography": "🗺️", "Civics": "🏛️", "Computer": "💻" };
+
   if (!s.syllabus || Object.keys(s.syllabus).length === 0) {
     document.getElementById('syllabusList').innerHTML = '<p style="text-align:center; font-size:14px; color:var(--grey); margin-top:20px;">No syllabus data available.</p>';
     return;
   }
 
-  Object.keys(s.syllabus).forEach((subj, idx) => {
-    let data = s.syllabus[subj];
+  Object.entries(s.syllabus).forEach(([subj, data], idx) => {
     let cleanName = String(subj || "General").trim();
-    let icon = "📚"; 
+    let icon = emojis[cleanName] || "📚";
 
-    let completedItems = (data && Array.isArray(data.completed)) ? data.completed : [];
-    let ongoingItems = (data && Array.isArray(data.ongoing)) ? data.ongoing : [];
-    let pendingItems = (data && Array.isArray(data.pending)) ? data.pending : [];
+    let completedItems = Array.isArray(data.completed) ? data.completed : (Array.isArray(data.done) ? data.done : []);
+    let ongoingItems = Array.isArray(data.ongoing) ? data.ongoing : [];
+    let pendingItems = Array.isArray(data.pending) ? data.pending : [];
 
     let total = completedItems.length + ongoingItems.length + pendingItems.length;
     let doneCount = completedItems.length;
@@ -357,16 +368,16 @@ function populateSyllabus(s) {
     <div class="syllabus-subject" id="syl${idx}">
       <div class="syl-header" onclick="toggleSyl(${idx})">
         <div class="syl-icon">${icon}</div>
-        <div class="syl-name">${cleanName}</div>
+        <div class="syl-name">${safeText(cleanName)}</div>
         <div class="syl-progress"><div class="syl-frac">${doneCount}/${total}</div><div class="syl-mini-bar"><div class="syl-mini-fill" style="width:${fillPct}%"></div></div></div>
         <div class="syl-expand">▼</div>
       </div>
       <div class="syl-body">
     `;
     
-    completedItems.forEach(ch => { subHtml += `<div class="syl-chapter"><div class="chk done">✓</div><div class="cname done">${ch}</div><div class="ctag done">Completed</div></div>`; });
-    ongoingItems.forEach(ch => { subHtml += `<div class="syl-chapter"><div class="chk" style="background:#FFF3E0; border-color:var(--orange); color:var(--orange);">↻</div><div class="cname" style="color:var(--dark);">${ch}</div><div class="ctag" style="background:#FFF3E0; color:var(--orange); border: 1.5px solid var(--orange);">Ongoing</div></div>`; });
-    pendingItems.forEach(ch => { subHtml += `<div class="syl-chapter"><div class="chk pending">○</div><div class="cname pending">${ch}</div><div class="ctag pending">Upcoming</div></div>`; });
+    completedItems.forEach(ch => { subHtml += `<div class="syl-chapter"><div class="chk done">✓</div><div class="cname done">${safeText(ch)}</div><div class="ctag done">Completed</div></div>`; });
+    ongoingItems.forEach(ch => { subHtml += `<div class="syl-chapter"><div class="chk" style="background:#FFF3E0; border-color:var(--orange); color:var(--orange);">↻</div><div class="cname" style="color:var(--dark);">${safeText(ch)}</div><div class="ctag" style="background:#FFF3E0; color:var(--orange); border: 1.5px solid var(--orange);">Ongoing</div></div>`; });
+    pendingItems.forEach(ch => { subHtml += `<div class="syl-chapter"><div class="chk pending">○</div><div class="cname pending">${safeText(ch)}</div><div class="ctag pending">Upcoming</div></div>`; });
     
     subHtml += `</div></div>`;
     html += subHtml;
@@ -397,7 +408,7 @@ function populateLeaderboard() {
   top5.forEach((student, index) => {
     let rankNum = index + 1;
     let medal = rankNum === 1 ? '<span class="lb-medal">🥇</span>' : rankNum === 2 ? '<span class="lb-medal">🥈</span>' : rankNum === 3 ? '<span class="lb-medal">🥉</span>' : `#${rankNum}`;
-    html += `<div class="lb-row"><div class="lb-rank">${medal}</div><div class="lb-name">${student.name}</div><div class="lb-score">${student.avg}%</div></div>`;
+    html += `<div class="lb-row"><div class="lb-rank">${medal}</div><div class="lb-name">${safeText(student.name)}</div><div class="lb-score">${student.avg}%</div></div>`;
   });
 
   if (top5.length === 0) html = '<div style="padding:16px; text-align:center; font-size:13px; color:var(--grey);">Not enough data for leaderboard yet.</div>';
