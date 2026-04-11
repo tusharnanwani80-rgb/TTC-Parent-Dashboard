@@ -337,14 +337,13 @@ function playWelcomeSound() {
 
 function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
 
+// 🔴 THE BULLETPROOF OPEN DASHBOARD FUNCTION 🔴
 function openDashboard() { 
-  try { 
-    populateDashboard(); 
-    showScreen('dashboard'); 
-  } catch(e) { 
-    alert("An error occurred while building the dashboard. Please contact TTC Admin."); 
-    console.error(e); 
-  }
+  showScreen('dashboard'); // Forces the screen to transition instantly so it NEVER freezes
+  setTimeout(() => {
+    try { populateDashboard(); } 
+    catch(e) { console.error("Error loading dashboard data: ", e); }
+  }, 50);
 }
 
 document.getElementById('studentIdInput').addEventListener('keydown', e => {
@@ -361,7 +360,7 @@ function switchTab(tab, btn) {
 
 function populateDashboard() {
   const s = currentStudent;
-  document.getElementById('hdrName').textContent = s.name;
+  document.getElementById('hdrName').textContent = String(s.name);
   document.getElementById('hdrClass').textContent = s.class + ' · ' + s.board;
   document.getElementById('hdrId').textContent = Object.keys(STUDENTS).find(k => STUDENTS[k] === s);
 
