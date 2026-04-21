@@ -780,7 +780,7 @@ function checkAndShowRankPopup() {
   if (popupType) {
     setTimeout(function() {
       showRankPopup(popupType, currentRank, prevRank, currentStudent.name, studentId);
-    }, 1200); // slight delay after dashboard renders
+    }, 500); // 🚀 REDUCED TIMEOUT: Triggers much faster after dashboard loads
   }
 }
 
@@ -857,10 +857,10 @@ function showRankPopup(type, rank, prevRank, studentName, studentId) {
     setTimeout(function(){ overlay.remove(); }, 300);
   }
 
+  // 🚀 FIXED: Only the explicit buttons can close the popup now.
   document.getElementById('edu-close').addEventListener('click', closePopup);
-  overlay.addEventListener('click', function(e){
-    if (e.target === this) closePopup();
-  });
+  
+  // (The overlay click listener has been completely removed to prevent accidental dismissals)
 
   // Open Reviews/Leaderboard tab when clicked
   document.getElementById('edu-leaderboard').addEventListener('click', function() {
