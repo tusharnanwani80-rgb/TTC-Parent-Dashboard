@@ -14,17 +14,19 @@
 </script>
 
 <!-- OneSignal SDK for Push Notifications -->
-<!-- OneSignal SDK for Push Notifications -->
 <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 <script>
   window.OneSignalDeferred = window.OneSignalDeferred || [];
   OneSignalDeferred.push(async function(OneSignal) {
+    // Turning on trace logging so we can see exact errors if it fails again
+    OneSignal.Debug.setLogLevel('trace');
+    
     await OneSignal.init({
       appId: "ca608a12-601b-4c5c-93e0-79bc4ff8b5fa",
       notifyButton: {
         enable: true,
       },
-      // 👇 BULLETPROOF GITHUB PAGES PATHS 👇
+      // 👇 THE BULLETPROOF GITHUB PAGES PATH CONFIGURATION 👇
       serviceWorkerPath: "/TTC-Parent-Dashboard/OneSignalSDKWorker.js",
       serviceWorkerParam: { scope: "/TTC-Parent-Dashboard/" }
     });
