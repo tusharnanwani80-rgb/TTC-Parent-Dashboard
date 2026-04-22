@@ -12,6 +12,20 @@
   // BUILT-IN CRASH DETECTOR
   window.onerror = function(msg, url, line) { alert("Error on line " + line + ":\n" + msg); return false; };
 </script>
+
+<!-- OneSignal SDK for Push Notifications -->
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "YOUR_ONESIGNAL_APP_ID", // 🔴 REPLACE THIS WITH YOUR ACTUAL ONESIGNAL APP ID
+      notifyButton: 
+        enable: true,
+      },
+    });
+  });
+</script>
  
 <style>
 /* DASHBOARD STYLES */
@@ -374,6 +388,17 @@ async function loginStudent() {
         
         playWelcomeSound();
         confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 }, colors: ['#E8522A','#FFD93D','#4361EE','#FF3D8A','#06D6A0'] });
+
+        // --- ONESIGNAL DEVICE TAGGING ---
+        try {
+          OneSignalDeferred.push(function(OneSignal) {
+             OneSignal.User.addTag("studentId", raw); 
+          });
+        } catch(e) { 
+          console.error("OneSignal tag error:", e); 
+        }
+        // --------------------------------
+
       } else {
         err.innerHTML = '❌ ID "' + raw + '" not found in database.'; 
         err.classList.add('show');
@@ -886,6 +911,18 @@ openDashboard = function() {
   _origOpenDashboard();
   setTimeout(checkAndShowRankPopup, 300);
 };
+
+// URL param auto-login implementation
+window.addEventListener('DOMContentLoaded', function() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const studentId = urlParams.get('id');
+  
+  if (studentId) {
+    document.getElementById('studentIdInput').value = studentId;
+    loginStudent();
+  }
+});
+
 </script>
 
 </body>
