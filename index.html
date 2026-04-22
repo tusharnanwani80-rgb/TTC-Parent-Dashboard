@@ -27,8 +27,8 @@
         enable: true,
       },
       // 👇 THE BULLETPROOF GITHUB PAGES PATH CONFIGURATION 👇
-      serviceWorkerPath: "/TTC-Parent-Dashboard/OneSignalSDKWorker.js",
-      serviceWorkerParam: { scope: "/TTC-Parent-Dashboard/" }
+      serviceWorkerPath: "OneSignalSDKWorker.js",
+      serviceWorkerParam: { scope: "./" }
     });
   });
 </script>
@@ -452,22 +452,28 @@ async function loginStudent() {
 
 // 🔔 SMART NOTIFICATION SETUP FUNCTION 🔔
 function setupNotifications() {
-  // Check the browser's native notification permission status
-  var perm = window.Notification ? Notification.permission : "default";
-
-  if (perm === "granted") {
-    // Already subscribed properly
-    alert("✅ Notifications are already ENABLED on this device!\n\nYou will receive an alert whenever homework or test updates are posted.");
-  } else if (perm === "denied") {
-    // Parent accidentally blocked notifications in the past
-    alert("⚠️ Notifications are BLOCKED by your browser.\n\nPlease tap the lock icon 🔒 in your address bar (at the top of your screen), go to Permissions/Site Settings, and tap 'Allow' for Notifications.");
-  } else {
-    // Has not been asked yet, trigger the OneSignal prompt
-    if (window.OneSignalDeferred) {
-      OneSignalDeferred.push(function(OneSignal) {
-        OneSignal.Notifications.requestPermission();
-      });
-    }
+  if (window.OneSignalDeferred) {
+    OneSignalDeferred.push(async function(OneSignal) {
+      try {
+        // 1. Force OneSignal to finalize the subscription (fixes the "Ghost Cache")
+        await OneSignal.User.PushSubscription.optIn();
+        
+        // 2. Verify with OneSignal's server, not just the browser's permission
+        const isSubscribed = OneSignal.User.PushSubscription.optedIn;
+        
+        if (isSubscribed) {
+          alert("✅ Notifications are ENABLED and fully connected to the server!\n\nYou will receive an alert whenever homework or test updates are posted.");
+        } else {
+          if (window.Notification && Notification.permission === "denied") {
+            alert("⚠️ Notifications are BLOCKED by your browser.\n\nPlease tap the lock icon 🔒 in your address bar, change Notifications to 'Allow', and tap this button again.");
+          } else {
+            alert("⚠️ The connection failed. Your browser might be blocking background sync. Try clearing cache or using a normal Chrome/Safari window.");
+          }
+        }
+      } catch (e) {
+        alert("⚠️ Setup Error: " + e.message);
+      }
+    });
   }
 }
  
