@@ -18,7 +18,6 @@
 <script>
   window.OneSignalDeferred = window.OneSignalDeferred || [];
   OneSignalDeferred.push(async function(OneSignal) {
-    // Turning on trace logging so we can see exact errors if it fails again
     OneSignal.Debug.setLogLevel('trace');
     
     await OneSignal.init({
@@ -26,9 +25,9 @@
       notifyButton: {
         enable: true,
       },
-      // 👇 THE BULLETPROOF GITHUB PAGES PATH CONFIGURATION 👇
-      serviceWorkerPath: "OneSignalSDKWorker.js",
-      serviceWorkerParam: { scope: "./" }
+      // 👇 Absolute paths prevent trailing-slash bugs on GitHub Pages
+      serviceWorkerPath: "/TTC-Parent-Dashboard/OneSignalSDKWorker.js",
+      serviceWorkerParam: { scope: "/TTC-Parent-Dashboard/" }
     });
   });
 </script>
@@ -424,15 +423,19 @@ async function loginStudent() {
         playWelcomeSound();
         confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 }, colors: ['#E8522A','#FFD93D','#4361EE','#FF3D8A','#06D6A0'] });
 
-        // --- ONESIGNAL DEVICE TAGGING ---
+        // --- ONESIGNAL DEVICE TAGGING & LOGIN ---
         try {
-          OneSignalDeferred.push(function(OneSignal) {
-             OneSignal.User.addTag("studentId", raw); 
-          });
+          if (window.OneSignalDeferred) {
+            OneSignalDeferred.push(async function(OneSignal) {
+              // 👇 Forces OneSignal to create a named "User" in your dashboard! 👇
+              await OneSignal.login(raw);
+              OneSignal.User.addTag("studentId", raw); 
+            });
+          }
         } catch(e) { 
           console.error("OneSignal tag error:", e); 
         }
-        // --------------------------------
+        // ----------------------------------------
 
       } else {
         err.innerHTML = '❌ ID "' + raw + '" not found in database.'; 
@@ -455,21 +458,29 @@ function setupNotifications() {
   if (window.OneSignalDeferred) {
     OneSignalDeferred.push(async function(OneSignal) {
       try {
-        // 1. Force OneSignal to finalize the subscription (fixes the "Ghost Cache")
+        // 1. Force OneSignal to finalize the subscription 
         await OneSignal.User.PushSubscription.optIn();
         
-        // 2. Verify with OneSignal's server, not just the browser's permission
-        const isSubscribed = OneSignal.User.PushSubscription.optedIn;
-        
-        if (isSubscribed) {
-          alert("✅ Notifications are ENABLED and fully connected to the server!\n\nYou will receive an alert whenever homework or test updates are posted.");
-        } else {
-          if (window.Notification && Notification.permission === "denied") {
-            alert("⚠️ Notifications are BLOCKED by your browser.\n\nPlease tap the lock icon 🔒 in your address bar, change Notifications to 'Allow', and tap this button again.");
+        // 2. Wait 1.5 seconds for the background sync to finish before checking
+        setTimeout(async () => {
+          const isSubscribed = OneSignal.User.PushSubscription.optedIn;
+          const subId = OneSignal.User.PushSubscription.id;
+          
+          if (isSubscribed && subId) {
+            // 🎉 If we have an ID, it is 100% successful and saved in their database
+            alert("✅ Notifications Connected Successfully!\n\nYour Device ID is: " + subId.substring(0,8) + "...\n\nPlease log in with a Student ID to link your device.");
+          } else if (isSubscribed && !subId) {
+            // It allowed it locally, but hasn't finished talking to OneSignal's servers yet
+            alert("⏳ Almost there! Your browser allowed notifications, but we are waiting for the server to sync. Please try tapping this button one more time.");
           } else {
-            alert("⚠️ The connection failed. Your browser might be blocking background sync. Try clearing cache or using a normal Chrome/Safari window.");
+            if (window.Notification && Notification.permission === "denied") {
+              alert("⚠️ Notifications are BLOCKED by your browser.\n\nPlease tap the lock icon 🔒 in your address bar, change Notifications to 'Allow', and tap this button again.");
+            } else {
+              alert("⚠️ Setup failed. Your browser might be blocking background sync. Try clearing cache or using a normal Chrome/Safari window.");
+            }
           }
-        }
+        }, 1500);
+
       } catch (e) {
         alert("⚠️ Setup Error: " + e.message);
       }
