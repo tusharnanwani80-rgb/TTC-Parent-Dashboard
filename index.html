@@ -17,11 +17,12 @@
 <script>
   window.OneSignalDeferred = window.OneSignalDeferred || [];
   OneSignalDeferred.push(async function(OneSignal) {
-   await OneSignal.init({
-  appId: "ca608a12-601b-4c5c-93e0-79bc4ff8b5fa",
-  notifyButton: { enable: true },
-  serviceWorkerParam: { scope: "/" }
-});
+    await OneSignal.init({
+      appId: "ca608a12-601b-4c5c-93e0-79bc4ff8b5fa",
+      notifyButton: { enable: true },
+      serviceWorkerParam: { scope: "/" }
+    });
+  }); // <-- FIXED: Added missing closing bracket and parenthesis here
 </script> 
 <style>
 /* DASHBOARD STYLES */
