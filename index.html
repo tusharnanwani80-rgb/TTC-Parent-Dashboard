@@ -12,7 +12,6 @@
   // BUILT-IN CRASH DETECTOR
   window.onerror = function(msg, url, line) { alert("Error on line " + line + ":\n" + msg); return false; };
 </script>
- 
 <!-- OneSignal SDK for Push Notifications -->
 <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 <script>
@@ -23,8 +22,7 @@
   notifyButton: { enable: true },
   serviceWorkerParam: { scope: "/" }
 });
-</script>
- 
+</script> 
 <style>
 /* DASHBOARD STYLES */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}:root{--blue:#4361EE;--orange:#FF6B35;--lime:#C8FF00;--pink:#FF3D8A;--white:#FFFFFF;--off:#F5F4FF;--dark:#111118;--grey:#6B6B80;--light:#EDEDF7;--green:#25D366;--rust:#E8522A;--yellow:#FFD93D;--teal:#06D6A0;--purple:#A78BFA}html,body{height:100%}body{font-family:'DM Sans',sans-serif;background:var(--off);background-image:repeating-linear-gradient(-45deg,transparent,transparent 18px,rgba(67,97,238,0.04) 18px,rgba(67,97,238,0.04) 19px);min-height:100vh}.screen{display:none}.screen.active{display:flex;flex-direction:column}
