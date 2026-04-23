@@ -1,0 +1,20 @@
+{
+  "name": "TTC Parent Dashboard",
+  "short_name": "TTC",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#F5F4FF",
+  "theme_color": "#E8522A",
+  "icons": [
+    {
+      "src": "https://i.postimg.cc/x9mDND2Q/Ttc-logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://i.postimg.cc/x9mDND2Q/Ttc-logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
