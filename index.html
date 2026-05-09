@@ -765,7 +765,20 @@ function populateSyllabus(s) {
     
     var sKey = 'syl_' + safeId(cleanName);
     var savedCompStr = localStorage.getItem(currentStudentId + '_' + sKey);
-    var savedComp = savedCompStr ? JSON.parse(savedCompStr) : [];
+    var savedComp = [];
+    
+    // SAFETY NET: Gracefully handle legacy data formats without crashing
+    try {
+      if (savedCompStr) {
+        var parsed = JSON.parse(savedCompStr);
+        if (Array.isArray(parsed)) {
+          savedComp = parsed; // New format
+        } else if (parsed && Array.isArray(parsed.completed)) {
+          savedComp = parsed.completed; // Legacy format
+        }
+      }
+    } catch(e) { }
+
     var isNew = false;
     for (var c=0; c<comp.length; c++) {
         if (!savedComp.includes(comp[c])) { isNew = true; break; }
