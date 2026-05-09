@@ -500,11 +500,23 @@ document.getElementById('studentIdInput').addEventListener('keydown', function(e
 
 // 🔄 MASTER RED DOT TAB EVALUATOR
 function reevaluateTabDots() {
-  var testsActive = document.querySelectorAll('#tab-tests .inner-dot.active').length > 0;
-  document.getElementById('dot-tests').classList.toggle('active', testsActive);
+  var testsActive = false;
+  if (currentStudent && currentStudent.tests) {
+     for (var i = 0; i < currentStudent.tests.length; i++) {
+        var t = currentStudent.tests[i];
+        var tKey = 'test_' + safeId(t.subject + t.chapter + t.date);
+        if (localStorage.getItem(currentStudentId + '_' + tKey) !== JSON.stringify(t)) {
+           testsActive = true;
+           break;
+        }
+     }
+  }
+  var dotTests = document.getElementById('dot-tests');
+  if (dotTests) dotTests.classList.toggle('active', testsActive);
   
   var sylActive = document.querySelectorAll('#tab-syllabus .inner-dot.active').length > 0;
-  document.getElementById('dot-syl').classList.toggle('active', sylActive);
+  var dotSyl = document.getElementById('dot-syl');
+  if (dotSyl) dotSyl.classList.toggle('active', sylActive);
 }
  
 function switchTab(tab, btn) {
@@ -521,18 +533,30 @@ function switchTab(tab, btn) {
     if (window.HW_QUEUE && window.HW_QUEUE.length > 0) {
       window.HW_QUEUE.forEach(item => {
         localStorage.setItem(item.key, '1');
-        var dot = document.getElementById('dot_' + item.id);
-        if (dot) { setTimeout(() => dot.classList.remove('active'), 2000); }
       });
       window.HW_QUEUE = [];
-      document.getElementById('dot-hw').classList.remove('active');
+      var dotHw = document.getElementById('dot-hw');
+      if (dotHw) dotHw.classList.remove('active');
     }
   }
 
   // Progress Clear on Tab Entry
   if (tab === 'progress' && window.CURRENT_PROG_STATE) {
     localStorage.setItem('ttc_prog_' + currentStudentId, window.CURRENT_PROG_STATE);
-    document.getElementById('dot-progress').classList.remove('active');
+    var dotProg = document.getElementById('dot-progress');
+    if (dotProg) dotProg.classList.remove('active');
+  }
+  
+  // Tests Clear on Tab Entry
+  if (tab === 'tests') {
+    if (currentStudent && currentStudent.tests) {
+      currentStudent.tests.forEach(t => {
+        var tKey = 'test_' + safeId(t.subject + t.chapter + t.date);
+        localStorage.setItem(currentStudentId + '_' + tKey, JSON.stringify(t));
+      });
+    }
+    var dotTests = document.getElementById('dot-tests');
+    if (dotTests) dotTests.classList.remove('active');
   }
 }
  
@@ -597,11 +621,7 @@ function populateHome(s) {
       var safeSubj = String(h.subject).replace(/</g, "&lt;").replace(/>/g, "&gt;");
       var safeTask = String(h.task).replace(/</g, "&lt;").replace(/>/g, "&gt;");
       
-      // Inject Red Dot Logic for Home Screen Mirror
-      var hwKey = 'hw_' + safeId(h.subject + h.task);
-      var isNew = !localStorage.getItem(currentStudentId + '_' + hwKey);
-
-      hwHtml += '<div class="hw-row"><div class="hw-subj" style="background:' + (h.subjectColor || '#4361EE') + '22;border-color:' + (h.subjectColor || '#4361EE') + ';color:' + (h.subjectColor || '#4361EE') + '">' + safeSubj + '</div><div class="hw-task" style="display:flex; align-items:center;">' + safeTask + '<div class="inner-dot ' + (isNew ? 'active' : '') + '"></div></div></div>';
+      hwHtml += '<div class="hw-row"><div class="hw-subj" style="background:' + (h.subjectColor || '#4361EE') + '22;border-color:' + (h.subjectColor || '#4361EE') + ';color:' + (h.subjectColor || '#4361EE') + '">' + safeSubj + '</div><div class="hw-task">' + safeTask + '</div></div>';
     }
   } else {
     hwHtml += '<div style="font-size:13px; color:var(--grey); padding-top:5px;">No homework assigned today! 🎉</div>';
@@ -630,7 +650,7 @@ function populateHomework(s) {
     var isNew = !localStorage.getItem(currentStudentId + '_' + hwKey);
     if (isNew) window.HW_QUEUE.push({key: currentStudentId + '_' + hwKey, id: hwKey});
 
-    todayHtml += '<div class="hw-card"><div class="hw-check pending">📌</div><div class="hw-info"><div class="hsubj">' + safeSubj + '</div><div class="htask" style="display:flex; align-items:center;">' + safeTask + '<div class="inner-dot ' + (isNew ? 'active' : '') + '" id="dot_' + hwKey + '"></div></div><div class="hmeta">Due: Tomorrow</div></div><div class="status-chip pending">Due</div></div>';
+    todayHtml += '<div class="hw-card"><div class="hw-check pending">📌</div><div class="hw-info"><div class="hsubj">' + safeSubj + '</div><div class="htask">' + safeTask + '</div><div class="hmeta">Due: Tomorrow</div></div><div class="status-chip pending">Due</div></div>';
   }
   if(tHW.length === 0) todayHtml = '<p style="text-align:center; font-size:13px; color:var(--grey); margin-bottom:20px;">No new homework! Enjoy your day.</p>';
   document.getElementById('todayHWList').innerHTML = todayHtml;
@@ -649,7 +669,7 @@ function populateHomework(s) {
     var isNew2 = !localStorage.getItem(currentStudentId + '_' + hwKey2);
     if (isNew2) window.HW_QUEUE.push({key: currentStudentId + '_' + hwKey2, id: hwKey2});
 
-    prevHtml += '<div class="hw-card ' + state + '"><div class="hw-check ' + state + '">' + icon + '</div><div class="hw-info"><div class="hsubj">' + safeSubj2 + '</div><div class="htask" style="display:flex; align-items:center;">' + safeTask2 + '<div class="inner-dot ' + (isNew2 ? 'active' : '') + '" id="dot_' + hwKey2 + '"></div></div><div class="hmeta">Assigned on ' + safeDate + '</div></div><div class="status-chip ' + state + '">' + text + '</div></div>';
+    prevHtml += '<div class="hw-card ' + state + '"><div class="hw-check ' + state + '">' + icon + '</div><div class="hw-info"><div class="hsubj">' + safeSubj2 + '</div><div class="htask">' + safeTask2 + '</div><div class="hmeta">Assigned on ' + safeDate + '</div></div><div class="status-chip ' + state + '">' + text + '</div></div>';
   }
   if(pHW.length === 0) prevHtml = '<p style="text-align:center; font-size:13px; color:var(--grey);">No past homework recorded yet.</p>';
   document.getElementById('prevHWList').innerHTML = prevHtml;
@@ -699,14 +719,11 @@ function populateTests(s) {
     var safeDate = String(t.date).replace(/</g, "&lt;").replace(/>/g, "&gt;");
     var safeNote = t.note ? String(t.note).replace(/</g, "&lt;").replace(/>/g, "&gt;") : 'No additional notes.';
  
-    var tKey = 'test_' + safeId(t.subject + t.chapter + t.date);
-    var isNew = localStorage.getItem(currentStudentId + '_' + tKey) !== JSON.stringify(t);
-
     html += (t.latest ? '<div class="test-latest-badge">🔥 LATEST TEST</div>' : '') +
     '<div class="test-card ' + (t.latest ? 'latest' : '') + '" id="tc' + i + '">' +
-      '<div class="test-header" onclick="toggleTest(' + i + ', \'' + tKey + '\', \'' + safeStrObj(t) + '\')">' +
+      '<div class="test-header" onclick="toggleTest(' + i + ')">' +
         '<div class="test-score-circle ' + gc + '" style="background:' + bg + '"><div class="tscore" style="color:' + gt + '">' + t.score + '</div><div class="ttotal">/ ' + t.total + '</div></div>' +
-        '<div class="test-info"><div class="test-subj">' + safeSubj + '</div><div class="test-chap" style="display:flex; align-items:center;">' + safeChap + '<div class="inner-dot ' + (isNew ? 'active' : '') + '" id="dot_' + tKey + '"></div></div><div class="test-date">📅 ' + safeDate + '</div></div>' +
+        '<div class="test-info"><div class="test-subj">' + safeSubj + '</div><div class="test-chap">' + safeChap + '</div><div class="test-date">📅 ' + safeDate + '</div></div>' +
         '<div class="test-grade-badge" style="background:' + bg + ';color:' + gt + '">' + t.grade + '</div>' +
         '<div class="expand-arrow">▼</div>' +
       '</div>' +
@@ -720,15 +737,9 @@ function populateTests(s) {
   document.getElementById('testsList').innerHTML = html;
 }
  
-function toggleTest(i, key, strStr) { 
+function toggleTest(i) { 
   var card = document.getElementById('tc' + i); 
   if(card) card.classList.toggle('open'); 
-  if (key && strStr) {
-      localStorage.setItem(currentStudentId + '_' + key, JSON.stringify(JSON.parse(decodeURIComponent(strStr))));
-      var dot = document.getElementById('dot_' + key);
-      if (dot) dot.classList.remove('active');
-      reevaluateTabDots();
-  }
 }
  
 function populateSyllabus(s) {
@@ -747,16 +758,21 @@ function populateSyllabus(s) {
     if (!data) continue;
  
     var cleanName = String(subj || "General").replace(/</g, "&lt;").replace(/>/g, "&gt;").trim();
-    
-    var sKey = 'syl_' + safeId(cleanName);
-    var isNew = localStorage.getItem(currentStudentId + '_' + sKey) !== JSON.stringify(data);
  
     var comp = data.completed || [];
     var ongo = data.ongoing || [];
     var pend = data.pending || [];
+    
+    var sKey = 'syl_' + safeId(cleanName);
+    var savedCompStr = localStorage.getItem(currentStudentId + '_' + sKey);
+    var savedComp = savedCompStr ? JSON.parse(savedCompStr) : [];
+    var isNew = false;
+    for (var c=0; c<comp.length; c++) {
+        if (!savedComp.includes(comp[c])) { isNew = true; break; }
+    }
  
     html += '<div class="syllabus-subject" id="syl' + index + '">';
-    html += '<div class="syl-header" onclick="toggleSyllabus(' + index + ', \'' + sKey + '\', \'' + safeStrObj(data) + '\')">';
+    html += '<div class="syl-header" onclick="toggleSyllabus(' + index + ', \'' + sKey + '\', \'' + safeStrObj(comp) + '\')">';
     html += '<div class="syl-icon">📚</div>';
     html += '<div class="syl-name" style="display:flex; align-items:center;">' + cleanName + '<div class="inner-dot ' + (isNew ? 'active' : '') + '" id="dot_' + sKey + '"></div></div>';
     html += '<div class="syl-expand">▼</div>';
@@ -783,7 +799,7 @@ function toggleSyllabus(i, key, strStr) {
   var el = document.getElementById('syl' + i);
   if (el) el.classList.toggle('open');
   if (key && strStr) {
-      localStorage.setItem(currentStudentId + '_' + key, JSON.stringify(JSON.parse(decodeURIComponent(strStr))));
+      localStorage.setItem(currentStudentId + '_' + key, decodeURIComponent(strStr));
       var dot = document.getElementById('dot_' + key);
       if (dot) dot.classList.remove('active');
       reevaluateTabDots();
@@ -839,6 +855,8 @@ document.getElementById('googleReviewBtn').addEventListener('click', function() 
 
 // ══════════════════════════════════════════════════
 // 🏆 ACADEMIC RANK POPUP SYSTEM
+// Detects when the logged-in student's rank changes
+// OR if they hold their rank but have taken new tests!
 // ══════════════════════════════════════════════════
 
 function getRankPopupKey(studentId) {
@@ -908,6 +926,7 @@ function checkAndShowRankPopup() {
   var currentTestsCount = currentStudent.tests ? currentStudent.tests.length : 0;
   var stored = getStoredRankData(studentId);
 
+  // If student drops out of top 5 -> clear data silently
   if (currentRank === -1) {
     clearRankData(studentId);
     return;
@@ -919,21 +938,27 @@ function checkAndShowRankPopup() {
   var popupType = null;
 
   if (prevRank === -1) {
+    // Was not in top 5 before -> NEW ENTRY
     popupType = 'entered';
   } else if (currentRank < prevRank) {
+    // Rank number decreased (e.g. #3 -> #1) -> CLIMBED!
     popupType = 'climbed';
   } else if (currentRank === prevRank) {
+    // Exact same rank. Only show popup if NEW tests were added since last time.
     if (currentTestsCount > prevTestsCount) {
       popupType = 'holding';
     }
   }
+  // Note: if currentRank > prevRank (dropped in rank), we do NOT show a popup, 
+  // but we still update the local storage below.
 
+  // Always update storage so we have the latest state (prevents repeat popups)
   saveRankData(studentId, currentRank, currentTestsCount);
 
   if (popupType) {
     setTimeout(function() {
       showRankPopup(popupType, currentRank, prevRank, currentStudent.name, studentId);
-    }, 500); 
+    }, 500); // 🚀 REDUCED TIMEOUT: Triggers much faster after dashboard loads
   }
 }
 
@@ -1010,8 +1035,12 @@ function showRankPopup(type, rank, prevRank, studentName, studentId) {
     setTimeout(function(){ overlay.remove(); }, 300);
   }
 
+  // 🚀 FIXED: Only the explicit buttons can close the popup now.
   document.getElementById('edu-close').addEventListener('click', closePopup);
   
+  // (The overlay click listener has been completely removed to prevent accidental dismissals)
+
+  // Open Reviews/Leaderboard tab when clicked
   document.getElementById('edu-leaderboard').addEventListener('click', function() {
     closePopup();
     setTimeout(() => {
