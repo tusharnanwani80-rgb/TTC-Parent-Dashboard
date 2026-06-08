@@ -1,6 +1,6 @@
 {
   "name": "TTC Parent Dashboard",
-  "short_name": "TTC app for Parents",
+  "short_name": "TTC PD",
   "description": "Your child's progress, at a glance.",
   "start_url": "./",
   "display": "standalone",
