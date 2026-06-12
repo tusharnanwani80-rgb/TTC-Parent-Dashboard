@@ -1166,9 +1166,6 @@ openDashboard = function() {
     e.preventDefault();
     deferredPrompt = e;
    
-    // ADD THIS LINE HERE: Reveal the manual button on the ID screen
-    document.getElementById('manualInstallWrap').style.display = 'flex';
-   
     // Checks to prevent showing if already dismissed or standalone
     if (localStorage.getItem('pwa_island_dismissed')) return;
     if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) return;
@@ -1194,22 +1191,7 @@ openDashboard = function() {
       closeBtn.classList.add('ready');
     }, 2000);
   }
-function triggerManualInstall() {
-    if (deferredPrompt) {
-      // Trigger the native OS install prompt
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then((choice) => {
-        deferredPrompt = null;
-        if (choice.outcome === 'accepted') {
-          // Hide button if they successfully installed it
-          document.getElementById('manualInstallWrap').style.display = 'none';
-        }
-      });
-    } else {
-      // Fallback instructions for iPhones (iOS Safari blocks programmatic prompts)
-      alert("To install the dashboard:\n\n📱 iPhone (Safari): Tap the Share icon at the bottom, then select 'Add to Home Screen'.\n\n📱 Android (Chrome): Tap the 3-dots menu at the top right, then select 'Add to Home screen'.");
-    }
-  }
+
   async function handlePwaInstall() {
     if (!deferredPrompt) return;
     
