@@ -427,7 +427,7 @@
     <div class="sec-title">📊 Performance</div>
     <div class="subject-bars" id="subjectBars"></div>
     <div class="chart-wrap">
-      <div class="chart-title">📈 Score Trend (Last 4 Tests)</div>
+      <div class="chart-title">📈 Score Trend (Last 6 Tests)</div>
       <canvas id="perfChart" height="160"></canvas>
     </div>
   </div>
@@ -810,7 +810,9 @@ function populateProgress(s) {
   if (perfChart) { perfChart.destroy(); perfChart = null; }
   var ctx = document.getElementById('perfChart').getContext('2d');
   if(s.perfScores && s.perfScores.length > 0) {
-    perfChart = new Chart(ctx, { type: 'line', data: { labels: s.perfLabels, datasets: [{ label: 'Overall Score %', data: s.perfScores, borderColor: '#4361EE', backgroundColor: 'rgba(67,97,238,0.12)', borderWidth: 3, pointBackgroundColor: '#E8522A', pointBorderColor: '#111118', pointBorderWidth: 2, pointRadius: 6, fill: true, tension: 0.4 }] }, options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 100, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'DM Sans', weight: '700' } } }, x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', weight: '700' } } } } } });
+    var chartLabels = s.perfLabels.slice(-6);
+    var chartScores = s.perfScores.slice(-6);
+    perfChart = new Chart(ctx, { type: 'line', data: { labels: chartLabels, datasets: [{ label: 'Overall Score %', data: chartScores, borderColor: '#4361EE', backgroundColor: 'rgba(67,97,238,0.12)', borderWidth: 3, pointBackgroundColor: '#E8522A', pointBorderColor: '#111118', pointBorderWidth: 2, pointRadius: 6, fill: true, tension: 0.4 }] }, options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 100, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'DM Sans', weight: '700' } } }, x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', weight: '700' } } } } } });
   } else {
     perfChart = new Chart(ctx, { type: 'line', data: { labels: ['No Data'], datasets: [{ data: [0] }] }, options: { scales: { y: { display: false }, x: { display: false } }, plugins: { legend: { display: false } } } });
   }
