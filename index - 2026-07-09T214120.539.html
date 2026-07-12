@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4361EE">
+<link rel="apple-touch-icon" href="icon.png">
+ <meta name="google" content="notranslate">
+<title>TTC Parent Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&family=Righteous&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+ 
+<script>
+  // BUILT-IN CRASH DETECTOR
+  window.onerror = function(msg, url, line) { alert("Error on line " + line + ":\n" + msg); return false; };
+</script>
+ 
+<style>
+/* DASHBOARD STYLES */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}:root{--blue:#4361EE;--orange:#FF6B35;--lime:#C8FF00;--pink:#FF3D8A;--white:#FFFFFF;--off:#F5F4FF;--dark:#111118;--grey:#6B6B80;--light:#EDEDF7;--green:#25D366;--rust:#E8522A;--yellow:#FFD93D;--teal:#06D6A0;--purple:#A78BFA}html,body{height:100%}body{font-family:'DM Sans',sans-serif;background:var(--off);background-image:repeating-linear-gradient(-45deg,transparent,transparent 18px,rgba(67,97,238,0.04) 18px,rgba(67,97,238,0.04) 19px);min-height:100vh}.screen{display:none}.screen.active{display:flex;flex-direction:column}
+#idScreen{min-height:100vh;align-items:center;justify-content:center;padding:24px}.id-card{width:100%;max-width:380px;background:var(--white);border:3px solid var(--dark);border-radius:28px;padding:36px 28px;box-shadow:6px 6px 0 var(--dark);text-align:center;animation:popIn 0.4s cubic-bezier(.34,1.3,.64,1)}.id-logo{width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--rust);box-shadow:4px 4px 0 var(--rust);margin-bottom:16px}.id-title{font-family:'Fredoka One',cursive;font-size:26px;color:var(--dark)}.id-title span{color:var(--rust)}.id-sub{font-size:13px;font-weight:600;color:var(--grey);margin-top:4px;margin-bottom:24px}.id-label{font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--grey);text-align:left;margin-bottom:6px}.id-input{width:100%;padding:14px 16px;font-family:'DM Sans',sans-serif;font-size:18px;font-weight:700;border:3px solid var(--dark);border-radius:14px;background:var(--off);color:var(--dark);outline:none;box-shadow:3px 3px 0 var(--dark);letter-spacing:2px;transition:border-color 0.2s,box-shadow 0.2s;text-align:center}.id-input:focus{border-color:var(--blue);box-shadow:3px 3px 0 var(--blue)}.id-btn{width:100%;padding:16px;font-family:'Fredoka One',cursive;font-size:20px;background:var(--rust);color:#fff;border:3px solid var(--dark);border-radius:14px;box-shadow:4px 4px 0 var(--dark);cursor:pointer;transition:transform 0.1s,box-shadow 0.1s;margin-top:20px}.id-btn:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--dark)}.id-error{display:none;background:#FFE5E5;border:2px solid var(--pink);border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;color:#C00;margin-top:14px}.id-error.show{display:block;animation:shake 0.4s}@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}#welcomeScreen{min-height:100vh;align-items:center;justify-content:center;background:linear-gradient(135deg,#ffecd2 0%,#fcb69f 100%);padding:24px;text-align:center}.welcome-inner{animation:welcomeIn 0.5s cubic-bezier(.34,1.3,.64,1)}.welcome-logo{width:100px;height:100px;border-radius:50%;border:4px solid #fff;box-shadow:0 6px 0 var(--rust),0 12px 24px rgba(232,82,42,.3);margin-bottom:20px;object-fit:cover}.welcome-hey{font-family:'Fredoka One',cursive;font-size:22px;color:var(--rust);letter-spacing:1px;margin-bottom:4px}.welcome-name{font-family:'Fredoka One',cursive;font-size:42px;color:var(--dark);line-height:1.1;margin-bottom:8px}.welcome-sub{font-size:15px;font-weight:700;color:var(--grey);margin-bottom:30px}.welcome-enter-btn{display:inline-block;padding:16px 40px;font-family:'Fredoka One',cursive;font-size:22px;background:var(--rust);color:#fff;border:3px solid var(--dark);border-radius:50px;box-shadow:5px 5px 0 var(--dark);cursor:pointer;position:relative;z-index:99;animation:pulse 1.5s infinite}@keyframes pulse{0%,100%{box-shadow:5px 5px 0 var(--dark)}50%{box-shadow:7px 7px 0 var(--dark)}}@keyframes welcomeIn{from{opacity:0;transform:scale(0.7) rotate(-5deg)}to{opacity:1;transform:scale(1) rotate(0)}}#dashboard{min-height:100vh;padding-bottom:80px}.dash-header{background:var(--white);border-bottom:3px solid var(--dark);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 3px 0 var(--dark)}.header-left{display:flex;align-items:center;gap:12px}.header-logo{width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid var(--rust)}.header-title{font-family:'Fredoka One',cursive;font-size:20px;color:var(--dark)}.header-title span{color:var(--rust)}.header-student{text-align:right}.header-sname{font-size:14px;font-weight:800;color:var(--dark)}.header-sclass{font-size:11px;font-weight:600;color:var(--grey)}.header-badge{display:inline-block;padding:2px 10px;font-size:10px;font-weight:800;letter-spacing:1px;background:var(--blue);color:#fff;border-radius:50px;margin-top:2px}.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:3px solid var(--dark);display:flex;z-index:200;box-shadow:0 -3px 0 var(--dark)}.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px 8px;cursor:pointer;font-size:10px;font-weight:800;color:var(--grey);border:none;background:none;transition:color 0.2s;gap:3px; position:relative;}.nav-item-icon-wrapper{position:relative; display:inline-flex; align-items:center; justify-content:center;}.nav-item .nav-icon{font-size:20px}.nav-item.active{color:var(--rust)}.tab-panel{display:none;padding:20px 16px}.tab-panel.active{display:block;animation:fadeUp 0.3s ease}@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}@keyframes popIn{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}.sec-title{font-family:'Fredoka One',cursive;font-size:22px;color:var(--dark);margin-bottom:16px;display:flex;align-items:center;gap:8px}.sec-title .sec-chip{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:800;background:var(--lime);color:var(--dark);padding:3px 10px;border-radius:50px;border:2px solid var(--dark);letter-spacing:0.5px}.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}.stat-card{background:var(--white);border:2.5px solid var(--dark);border-radius:18px;padding:16px 14px;box-shadow:4px 4px 0 var(--dark);text-align:center;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;}.stat-card:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--dark);}.stat-card .sc-icon{font-size:28px;margin-bottom:4px}.stat-card .sc-val{font-family:'Fredoka One',cursive;font-size:32px;color:var(--dark);line-height:1}.stat-card .sc-label{font-size:11px;font-weight:700;color:var(--grey);margin-top:2px}.stat-card.blue{border-color:var(--blue);box-shadow:4px 4px 0 var(--blue)}.stat-card.orange{border-color:var(--orange);box-shadow:4px 4px 0 var(--orange)}.stat-card.green{border-color:var(--teal);box-shadow:4px 4px 0 var(--teal)}.stat-card.pink{border-color:var(--pink);box-shadow:4px 4px 0 var(--pink)}.home-hw-preview{background:var(--white);border:2.5px solid var(--dark);border-radius:18px;padding:16px;box-shadow:4px 4px 0 var(--dark);margin-bottom:16px}.hw-preview-title{font-family:'Righteous',cursive;font-size:15px;color:var(--dark);margin-bottom:12px;display:flex;align-items:center;gap:6px}.hw-dot{width:8px;height:8px;border-radius:50%;background:var(--orange)}.hw-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1.5px dashed var(--light)}.hw-row:last-child{border-bottom:none;padding-bottom:0}.hw-subj{font-size:11px;font-weight:800;padding:3px 10px;border-radius:50px;border:2px solid var(--dark)}.hw-task{font-size:13px;font-weight:600;color:var(--dark);flex:1}.teacher-msg{background:linear-gradient(135deg,var(--blue) 0%,#7B8FF7 100%);border:2.5px solid var(--dark);border-radius:18px;padding:16px;box-shadow:4px 4px 0 var(--dark);color:#fff}.tmsg-label{font-size:10px;font-weight:800;letter-spacing:2px;opacity:0.8;margin-bottom:6px}.tmsg-text{font-size:14px;font-weight:700;line-height:1.5}.tmsg-sign{font-size:12px;opacity:0.9;font-weight:800;margin-top:12px;text-align:right}.hw-section-title{font-family:'Righteous',cursive;font-size:16px;color:var(--dark);margin:18px 0 10px;display:flex;align-items:center;gap:8px}.hw-badge{font-size:11px;font-weight:800;padding:3px 10px;border-radius:50px;border:2px solid var(--dark);background:var(--yellow)}.hw-card{background:var(--white);border:2.5px solid var(--dark);border-radius:16px;padding:14px 16px;box-shadow:3px 3px 0 var(--dark);margin-bottom:10px;display:flex;align-items:flex-start;gap:12px}.hw-card.done{opacity:0.65;background:#F0FFF6;border-color:var(--teal);box-shadow:3px 3px 0 var(--teal)}.hw-card.pending{border-color:var(--orange);box-shadow:3px 3px 0 var(--orange)}.hw-check{width:28px;height:28px;border-radius:50%;border:2.5px solid var(--dark);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px}.hw-check.done{background:var(--teal);border-color:var(--teal)}.hw-check.pending{background:#FFF3E0}.hw-info{flex:1}.hw-info .hsubj{font-size:11px;font-weight:800;letter-spacing:1px;color:var(--rust);text-transform:uppercase;margin-bottom:3px}.hw-info .htask{font-size:14px;font-weight:700;color:var(--dark);line-height:1.4;word-break:break-word;white-space:normal;}.hw-info .hmeta{font-size:11px;font-weight:600;color:var(--grey);margin-top:4px}.status-chip{font-size:10px;font-weight:800;padding:3px 8px;border-radius:50px;border:2px solid var(--dark);flex-shrink:0}.status-chip.done{background:var(--teal);color:#fff;border-color:var(--teal)}.status-chip.pending{background:var(--orange);color:#fff;border-color:var(--orange)}.subject-bars{margin-bottom:24px}.subj-bar-item{margin-bottom:14px}.subj-bar-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}.subj-bar-name{font-size:14px;font-weight:800;color:var(--dark);display:flex;align-items:center;gap:6px}.subj-bar-pct{font-family:'Righteous',cursive;font-size:15px}.bar-track{height:12px;background:var(--light);border-radius:50px;border:2px solid var(--dark);overflow:hidden}.bar-fill{height:100%;border-radius:50px;transition:width 1s cubic-bezier(.34,1.3,.64,1)}.bar-fill.strong{background:var(--teal)}.bar-fill.good{background:var(--blue)}.bar-fill.avg{background:var(--yellow)}.bar-fill.weak{background:var(--orange)}.chart-wrap{background:var(--white);border:2.5px solid var(--dark);border-radius:18px;padding:16px;box-shadow:4px 4px 0 var(--dark);margin-bottom:16px}.chart-title{font-family:'Righteous',cursive;font-size:15px;color:var(--dark);margin-bottom:14px}.test-latest-badge{display:inline-block;padding:4px 12px;font-size:10px;font-weight:900;letter-spacing:2px;background:var(--rust);color:#fff;border:2px solid var(--dark);border-radius:50px;margin-bottom:10px}.test-card{background:var(--white);border:2.5px solid var(--dark);border-radius:18px;margin-bottom:14px;overflow:hidden;box-shadow:4px 4px 0 var(--dark)}.test-card.latest{border-color:var(--blue);box-shadow:4px 4px 0 var(--blue)}.test-header{padding:16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:background 0.2s}.test-header:hover{background:var(--off)}.test-score-circle{width:58px;height:58px;border-radius:50%;border:3px solid var(--dark);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;box-shadow:3px 3px 0 var(--dark)}.test-score-circle .tscore{font-family:'Fredoka One',cursive;font-size:20px;line-height:1}.test-score-circle .ttotal{font-size:10px;font-weight:800;color:var(--grey)}.grade-A-plus{background:#EAFFDA}.grade-A{background:#E0F8FF}.grade-B{background:#FFF8DC}.grade-C{background:#FFEAEA}.test-info{flex:1}.test-subj{font-size:12px;font-weight:800;letter-spacing:1px;color:var(--rust);text-transform:uppercase}.test-chap{font-size:15px;font-weight:800;color:var(--dark);margin-top:2px}.test-date{font-size:12px;font-weight:600;color:var(--grey);margin-top:3px}.test-grade-badge{font-family:'Fredoka One',cursive;font-size:20px;padding:6px 14px;border-radius:12px;border:2.5px solid var(--dark)}.expand-arrow{font-size:16px;transition:transform 0.3s;color:var(--grey)}.test-card.open .expand-arrow{transform:rotate(180deg)}.test-body{display:none;border-top:2px solid var(--light);padding:16px}.test-card.open .test-body{display:block;animation:fadeUp 0.2s ease}.test-sec-label{font-size:10px;font-weight:900;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;color:var(--purple)}.note-box{background:#F5F0FF;border:2px solid var(--purple);border-radius:12px;padding:12px 14px;font-size:13px;font-weight:600;color:#5B21B6;line-height:1.5;display:flex;align-items:flex-start;gap:8px}.syllabus-subject{margin-bottom:14px;border:2.5px solid var(--dark);border-radius:18px;overflow:hidden;box-shadow:3px 3px 0 var(--dark)}.syl-header{padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;background:var(--white);transition:background 0.2s}.syl-header:hover{background:var(--off)}.syl-icon{font-size:24px}.syl-name{font-family:'Righteous',cursive;font-size:17px;color:var(--dark);flex:1}.syl-expand{font-size:14px;color:var(--grey);transition:transform 0.3s}.syllabus-subject.open .syl-expand{transform:rotate(180deg)}.syl-body{display:none;border-top:2px solid var(--light);padding:12px 16px;background:var(--off)}.syllabus-subject.open .syl-body{display:block}.syl-chapter{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1.5px dashed var(--light);font-size:13px;font-weight:700}.syl-chapter:last-child{border-bottom:none}.syl-chapter .chk{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}.syl-chapter .chk.done{background:var(--teal);color:#fff;border:2px solid var(--teal)}.syl-chapter .chk.pending{background:var(--light);border:2px solid var(--grey);color:var(--grey)}.syl-chapter .cname{flex:1}.syl-chapter .cname.done{color:var(--dark)}.syl-chapter .cname.pending{color:var(--grey)}.syl-chapter .ctag{font-size:10px;font-weight:800;padding:2px 8px;border-radius:50px}.syl-chapter .ctag.done{background:#E8FFF8;color:#059669;border:1.5px solid var(--teal)}.syl-chapter .ctag.pending{background:#FFF3E0;color:var(--orange);border:1.5px solid var(--orange)}.review-cta-card{background:linear-gradient(135deg,var(--rust) 0%,#FF8C00 100%);border:2.5px solid var(--dark);border-radius:18px;padding:20px 16px;box-shadow:5px 5px 0 var(--dark);text-align:center;margin-bottom:20px}.rcta-title{font-family:'Fredoka One',cursive;font-size:26px;color:#fff;margin-bottom:6px}.rcta-sub{font-size:13px;font-weight:700;color:rgba(255,255,255,0.85);margin-bottom:18px;line-height:1.5}.google-btn{display:inline-block;padding:14px 28px;font-family:'Fredoka One',cursive;font-size:18px;background:#fff;color:var(--dark);border:3px solid var(--dark);border-radius:50px;box-shadow:4px 4px 0 var(--dark);cursor:pointer;position:relative;overflow:hidden;transition:transform 0.1s,box-shadow 0.1s}.reviews-embed-wrap{background:var(--white);border:2.5px solid var(--dark);border-radius:18px;padding:16px;box-shadow:4px 4px 0 var(--dark)}.rev-head{margin-bottom:14px;display:flex;align-items:center;gap:10px}.rev-head-title{font-family:'Righteous',cursive;font-size:18px;color:var(--dark)}.rev-stars{color:var(--yellow);font-size:18px;letter-spacing:2px}.famewall-scroll-wrap{max-height:420px;overflow-y:auto;overflow-x:hidden;border-radius:10px;scrollbar-width:thin;scrollbar-color:var(--rust) var(--light)}.famewall-scroll-wrap::-webkit-scrollbar{width:6px}.famewall-scroll-wrap::-webkit-scrollbar-track{background:var(--light);border-radius:10px}.famewall-scroll-wrap::-webkit-scrollbar-thumb{background:var(--rust);border-radius:10px}.separator{height:2px;background:var(--light);border-radius:2px;margin:20px 0}.lb-row{display:flex;align-items:center;padding:14px 16px;border-bottom:2px solid var(--light)}.lb-row:last-child{border-bottom:none}.lb-rank{width:35px;font-family:'Fredoka One',cursive;font-size:18px;color:var(--grey);text-align:center}.lb-medal{font-size:24px}.lb-name{flex:1;font-size:14px;font-weight:800;color:var(--dark);padding-left:10px}.lb-score{font-family:'Righteous',cursive;font-size:16px;color:var(--blue);background:#EEF2FF;padding:4px 10px;border-radius:8px;border:2px solid var(--blue)}
+
+/* 🔴 SMART NOTIFICATION DOT */
+.red-dot {
+  position: absolute; top: -2px; right: -4px; width: 10px; height: 10px;
+  background: var(--rust); border-radius: 50%; border: 2px solid var(--white);
+  display: none; box-shadow: 0 0 0 1px var(--dark);
+}
+.red-dot.active { display: block; animation: pulseDot 2s infinite; }
+@keyframes pulseDot { 
+  0% { box-shadow: 0 0 0 0 rgba(232, 82, 42, 0.7); } 
+  70% { box-shadow: 0 0 0 6px rgba(232, 82, 42, 0); } 
+  100% { box-shadow: 0 0 0 0 rgba(232, 82, 42, 0); } 
+}
+
+/* 🔴 INNER ITEMS DOT */
+.inner-dot {
+  display: inline-block; width: 8px; height: 8px;
+  background: var(--rust); border-radius: 50%;
+  box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  animation: pulseDot 2s infinite; margin-left: 8px;
+  flex-shrink: 0; opacity: 0; transform: scale(0); transition: 0.3s;
+}
+.inner-dot.active { opacity: 1; transform: scale(1); }
+
+/* LOGOUT BUTTON */
+.logout-btn {
+  display: flex; align-items: center; justify-content: center;
+  background: var(--white); border: 2px solid var(--dark); border-radius: 12px;
+  width: 40px; height: 40px; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s;
+  box-shadow: 2px 2px 0 var(--dark); color: var(--dark);
+  margin-left: auto;
+}
+.logout-btn:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--dark); }
+
+/* ══════════════════════════════════════════════════
+   🎓 TTC ACADEMIC POPUP STYLES
+   ══════════════════════════════════════════════════ */
+#edu-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  animation: eduFadeIn 0.3s ease forwards;
+}
+
+#edu-card {
+  width: 100%; max-width: 360px;
+  background: #ffffff;
+  border-radius: 24px;
+  position: relative;
+  text-align: center;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: eduCardUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  overflow: hidden;
+  border: 4px solid #fff;
+}
+
+.edu-header-pattern {
+  height: 120px;
+  background: var(--theme-primary);
+  background-image: radial-gradient(circle at 10px 10px, rgba(255,255,255,0.1) 2px, transparent 0);
+  background-size: 20px 20px;
+  position: relative;
+}
+
+.edu-badge-container {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 10;
+}
+
+.edu-glow-ring {
+  position: absolute;
+  top: 52px; 
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 110px; height: 110px;
+  background: var(--theme-gold);
+  border-radius: 50%;
+  filter: blur(10px);
+  opacity: 0.4;
+  z-index: 1;
+}
+
+.edu-ttc-logo {
+  width: 104px;
+  height: 104px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #fff;
+  border: 4px solid var(--theme-gold);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  position: relative;
+  z-index: 2;
+  animation: eduStamp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
+}
+
+.edu-rank-ribbon {
+  position: relative;
+  margin-top: -8px; 
+  z-index: 3;
+  background: var(--theme-gold);
+  color: #fff;
+  font-family: 'Fredoka One', cursive;
+  font-size: 16px;
+  padding: 4px 18px;
+  border-radius: 20px;
+  border: 3px solid #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  white-space: nowrap;
+  animation: eduRibbonPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both;
+}
+
+.edu-content {
+  padding: 45px 24px 24px; 
+  background: #fff;
+}
+
+.edu-tag {
+  display: inline-block;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px; font-weight: 800; letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--theme-primary);
+  background: var(--theme-light);
+  padding: 6px 14px;
+  border-radius: 50px;
+  margin-bottom: 12px;
+}
+
+.edu-title {
+  font-family: 'Fredoka One', cursive;
+  font-size: 24px;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+
+.edu-subtitle {
+  font-size: 14px; font-weight: 500;
+  color: #64748b;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.edu-subtitle strong {
+  color: #0f172a;
+  font-weight: 800;
+}
+
+.edu-btn-primary {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%;
+  padding: 16px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 16px;
+  color: #fff;
+  background: var(--theme-primary);
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 0 var(--theme-primary-dark);
+}
+
+.edu-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--theme-primary-dark);
+}
+
+.edu-btn-primary:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 var(--theme-primary-dark);
+}
+
+.edu-btn-leaderboard {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%;
+  padding: 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px; font-weight: 800;
+  color: #334155;
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 10px;
+}
+
+.edu-btn-leaderboard:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.edu-btn-secondary {
+  width: 100%;
+  padding: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; font-weight: 700;
+  color: #64748b;
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.edu-btn-secondary:hover {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+@keyframes eduFadeIn {
+  from { opacity: 0; backdrop-filter: blur(0px); }
+  to { opacity: 1; backdrop-filter: blur(4px); }
+}
+
+@keyframes eduCardUp {
+  0% { transform: translateY(50px) scale(0.95); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+@keyframes eduStamp {
+  0% { transform: scale(1.8); opacity: 0; }
+  60% { transform: scale(0.95); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes eduRibbonPop {
+  0% { transform: translateY(15px) scale(0.8); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+@keyframes eduCardOut {
+  from { transform: translateY(0) scale(1); opacity: 1; }
+  to { transform: translateY(30px) scale(0.95); opacity: 0; }
+}
+ /* ══════════════════════════════════════════════════
+   📱 DYNAMIC ISLAND PWA TOAST
+   ══════════════════════════════════════════════════ */
+#pwa-island-container {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 10000;
+  pointer-events: none; padding-top: 16px; display: none; justify-content: center;
+  transition: all 0.3s ease;
+}
+#pwa-island {
+  pointer-events: auto; background: #000; color: #fff;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4); border-radius: 32px;
+  width: 340px; padding: 12px; display: flex; align-items: center; gap: 12px;
+  position: relative; border: 1px solid rgba(255,255,255,0.1);
+  animation: islandMorph 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s, border-color 0.3s;
+}
+#pwa-island.success {
+  width: 350px; background: #111; border-color: rgba(34,197,94,0.3);
+}
+.pwa-icon-box {
+  width: 40px; height: 40px; background: rgba(255,255,255,0.1);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  color: #60A5FA; flex-shrink: 0; transition: color 0.3s;
+}
+#pwa-island.success .pwa-icon-box { color: #4ADE80; }
+.pwa-text-box { flex: 1; }
+.pwa-title { font-size: 14px; font-weight: 600; font-family: 'DM Sans', sans-serif; margin: 0; }
+.pwa-btn {
+  background: #2563EB; color: #fff; font-size: 13px; font-weight: 700;
+  padding: 8px 18px; border-radius: 50px; border: none; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; transition: background 0.2s, transform 0.1s;
+}
+.pwa-btn:active { transform: scale(0.95); }
+.pwa-close {
+  position: absolute; top: 8px; right: 8px; padding: 5px; border-radius: 50%;
+  background: rgba(255,255,255,0.1); color: #9CA3AF; border: none; cursor: pointer;
+  opacity: 0; transform: scale(0.5); pointer-events: none; transition: all 0.3s;
+  display: flex; align-items: center; justify-content: center;
+}
+#pwa-island:hover .pwa-close.ready { opacity: 1; transform: scale(1); pointer-events: auto; }
+.pwa-close:hover { color: #fff; background: rgba(255,255,255,0.2); }
+.pwa-progress-track {
+  height: 4px; background: rgba(255,255,255,0.2); border-radius: 10px;
+  margin-top: 6px; width: 100%; overflow: hidden; position: relative; display: none;
+}
+.pwa-progress-bar {
+  position: absolute; top: 0; bottom: 0; left: 0; background: #3B82F6; width: 50%;
+  border-radius: 10px; box-shadow: 0 0 8px rgba(59,130,246,0.8);
+  animation: islandSlide 1.5s ease-in-out infinite;
+}
+@keyframes islandMorph {
+  0% { transform: translateY(-20px) scale(0.5); opacity: 0; border-radius: 100px; }
+  50% { transform: translateY(10px) scale(1.05); opacity: 1; }
+  100% { transform: translateY(0) scale(1); opacity: 1; border-radius: 32px; }
+}
+@keyframes islandSlide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+@keyframes checkAnim {
+  0% { stroke-dashoffset: 24; }
+  100% { stroke-dashoffset: 0; }
+}
+.check-svg { stroke-dasharray: 24; stroke-dashoffset: 24; animation: checkAnim 0.4s ease-out forwards; }
+
+/* NEO BRUTALIST INSTALL BUTTON */
+.neo-btn-install {
+  width: 100%;
+  padding: 16px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 18px;
+  background: var(--lime);
+  color: var(--dark);
+  border: 3px solid var(--dark);
+  border-radius: 14px;
+  box-shadow: 4px 4px 0 var(--dark);
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+  margin-top: 15px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.neo-btn-install:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--dark);
+}
+.neo-btn-install:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--dark);
+}
+</style>
+</head>
+<body>
+ 
+<div class="screen active" id="idScreen">
+  <div class="id-card">
+    <img class="id-logo" src="https://i.postimg.cc/x9mDND2Q/Ttc-logo.png" alt="TTC">
+    <div class="id-title" style="font-size: 26px;">TTC Parent <span>Dashboard</span></div>
+    <div class="id-sub">Your child's progress, at a glance 📊</div>
+    <div class="id-label">Enter Student ID</div>
+    <input class="id-input" id="studentIdInput" type="text" placeholder="e.g. TTC01" maxlength="10" autocomplete="off" autocapitalize="characters">
+    <button class="id-btn" onclick="loginStudent()">🚀 View Dashboard</button>
+    <button class="neo-btn-install" id="neoInstallBtn" onclick="triggerNeoInstall()">Install TTC PD App</button>
+    <div class="id-error" id="idError"></div>
+  </div>
+</div>
+ 
+<div class="screen" id="welcomeScreen">
+  <div class="welcome-inner">
+    <img class="welcome-logo" src="https://i.postimg.cc/x9mDND2Q/Ttc-logo.png" alt="TTC">
+    <div class="welcome-hey">👋 Namaste!</div>
+    <div class="welcome-name" id="welcomeParentMsg">Welcome!</div>
+    <div class="welcome-sub" id="welcomeSubMsg">Tushar Tuition Classes · Wardha</div>
+    <button class="welcome-enter-btn" onclick="openDashboard()">📊 Open Dashboard →</button>
+  </div>
+</div>
+ 
+<div class="screen" id="dashboard">
+  <div class="dash-header">
+    <div class="header-left">
+      <img class="header-logo" src="https://i.postimg.cc/x9mDND2Q/Ttc-logo.png" alt="TTC">
+      <div><div class="header-title">TTC <span>Dashboard</span></div></div>
+    </div>
+    <div class="header-student" style="display:flex; align-items:center; gap:12px;">
+      <div style="display:flex; flex-direction:column; align-items:flex-end;">
+        <div class="header-sname" id="hdrName">—</div>
+        <div class="header-sclass" id="hdrClass">—</div>
+        <div class="header-badge" id="hdrId">—</div>
+      </div>
+      <!-- LOGOUT/EXIT BUTTON (Redirects cleanly to ID Screen) -->
+      <button class="logout-btn" onclick="logout()" title="Logout / Switch Student">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+      </button>
+    </div>
+  </div>
+ 
+  <div id="tab-home" class="tab-panel active">
+    <div class="sec-title">🏠 Overview <span class="sec-chip" id="homeDateChip">Today</span></div>
+    <div class="stat-grid" id="statGrid"></div>
+    <div class="home-hw-preview" id="homeTodayHW"></div>
+    <div class="teacher-msg" id="teacherMsgCard">
+      <div class="tmsg-label">📌 TEACHER'S MESSAGE</div>
+      <div class="tmsg-text" id="teacherMsgText">—</div>
+      <div class="tmsg-sign" id="teacherMsgSign"></div>
+    </div>
+  </div>
+ 
+  <div id="tab-homework" class="tab-panel">
+    <div class="sec-title">📚 Homework</div>
+    <div class="hw-section-title">📅 Today's Tasks <span class="hw-badge" id="todayHWCount">0 Tasks</span></div>
+    <div id="todayHWList"></div>
+    <div class="separator"></div>
+    <div class="hw-section-title">📋 Previous Homework <span class="hw-badge" id="prevHWCount"></span></div>
+    <div id="prevHWList"></div>
+  </div>
+ 
+  <div id="tab-progress" class="tab-panel">
+    <div class="sec-title">📊 Performance</div>
+    <div class="subject-bars" id="subjectBars"></div>
+    <div class="chart-wrap">
+      <div class="chart-title">📈 Score Trend (Last 6 Tests)</div>
+      <canvas id="perfChart" height="160"></canvas>
+    </div>
+  </div>
+ 
+  <div id="tab-tests" class="tab-panel">
+    <div class="sec-title">📝 Test Reports</div>
+    <div id="testsList"></div>
+  </div>
+ 
+  <div id="tab-syllabus" class="tab-panel">
+    <div class="sec-title">✅ Completion Report</div>
+    <div id="syllabusList"></div>
+  </div>
+ 
+  <div id="tab-reviews" class="tab-panel">
+    <div class="sec-title">⭐ Reviews</div>
+    <div class="review-cta-card">
+      <div class="rcta-title">Love TTC? 🧡</div>
+      <div class="rcta-sub">Share your experience — it helps other parents find us and motivates our teachers!</div>
+      <button class="google-btn" id="googleReviewBtn">⭐ Write a Google Review</button>
+    </div>
+    <div class="reviews-embed-wrap">
+      <div class="rev-head"><div><div class="rev-head-title">What Parents Say</div><div class="rev-stars">★★★★★</div></div></div>
+      <div class="famewall-scroll-wrap">
+        <div class="famewall-embed" data-src="https---maps-app-goo-gl-CCkEWRVgjbvHpQmLA" data-format="grid" style="width:100%;min-height:300px;"></div>
+      </div>
+    </div>
+    <script type="text/javascript" src="https://embed.famewall.io/frame.js" defer></script>
+    <div class="separator"></div>
+    <div class="sec-title" id="leaderboardSection">🏆 TTC Top 5 Achievers</div>
+    <div class="review-card" style="background: var(--white); border-color: var(--dark); padding: 0; overflow: hidden; margin-bottom: 30px;">
+      <div id="leaderboardList"></div>
+    </div>
+  </div>
+ 
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="switchTab('home',this)"><span class="nav-icon">🏠</span> Home</button>
+    <button class="nav-item" onclick="switchTab('homework',this)">
+      <div style="position:relative; display:inline-flex;"><span class="nav-icon">📚</span><div class="red-dot" id="dot-hw"></div></div>
+      HW
+    </button>
+    <button class="nav-item" onclick="switchTab('progress',this)">
+      <div style="position:relative; display:inline-flex;"><span class="nav-icon">📊</span><div class="red-dot" id="dot-progress"></div></div>
+      Progress
+    </button>
+    <button class="nav-item" onclick="switchTab('tests',this)">
+      <div style="position:relative; display:inline-flex;"><span class="nav-icon">📝</span><div class="red-dot" id="dot-tests"></div></div>
+      Tests
+    </button>
+    <button class="nav-item" onclick="switchTab('syllabus',this)">
+      <div style="position:relative; display:inline-flex;"><span class="nav-icon">✅</span><div class="red-dot" id="dot-syl"></div></div>
+      Syllabus
+    </button>
+    <button class="nav-item" onclick="switchTab('reviews',this)"><span class="nav-icon">⭐</span> Reviews</button>
+  </nav>
+</div>
+ 
+<script>
+// 🔴 PASTE YOUR APPS SCRIPT WEB APP URL HERE 🔴
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxQiwdMGjaY2ZcGE0iaAbwC72CPjgRp2WhHKyj1mjF5vHd_2wzKjofdEMoeHisz2i-Xsg/exec';
+ 
+var STUDENTS = {}; 
+var currentStudent = null;
+var currentStudentId = null;
+var perfChart = null;
+
+// The queues for tracking unread precise items
+window.HW_QUEUE = [];
+window.CURRENT_PROG_STATE = null;
+
+// Safe encoding utility for IDs
+function safeId(str) { return encodeURIComponent(str).replace(/%/g, ''); }
+function safeStrObj(obj) { return encodeURIComponent(JSON.stringify(obj)).replace(/'/g, "%27"); }
+ 
+async function loginStudent() {
+  var raw = document.getElementById('studentIdInput').value.trim().toUpperCase();
+  var err = document.getElementById('idError');
+  var btn = document.querySelector('.id-btn');
+  if (!raw) return;
+ 
+  btn.innerText = "⏳ Checking..."; 
+  btn.disabled = true; 
+  err.classList.remove('show');
+ 
+  try {
+    var response = await fetch(WEB_APP_URL);
+    var textData = await response.text(); 
+    var result = JSON.parse(textData); 
+ 
+    if (result.status === 'ok') {
+      STUDENTS = result.data;
+      if (STUDENTS[raw]) {
+        currentStudent = STUDENTS[raw];
+        currentStudentId = raw;
+        document.getElementById('welcomeParentMsg').textContent = 'Hello, ' + currentStudent.parentName + '! 🙏';
+        document.getElementById('welcomeSubMsg').textContent = currentStudent.name + ' · ' + currentStudent.class + ' · ' + currentStudent.board;
+        
+        document.getElementById('idScreen').classList.remove('active');
+        document.getElementById('welcomeScreen').classList.add('active');
+        
+        playWelcomeSound();
+        confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 }, colors: ['#E8522A','#FFD93D','#4361EE','#FF3D8A','#06D6A0'] });
+        
+        // 🔄 30s SILENT AUTO-RELOAD
+        if (!window.ttcReloadInterval) {
+          window.ttcReloadInterval = setInterval(async () => {
+            if (currentStudentId) {
+              try {
+                var silentRes = await fetch(WEB_APP_URL);
+                var silentText = await silentRes.text();
+                var silentData = JSON.parse(silentText);
+                if (silentData.status === 'ok') {
+                  STUDENTS = silentData.data;
+                  if (STUDENTS[currentStudentId]) {
+                    currentStudent = STUDENTS[currentStudentId];
+                    populateDashboard();
+                  }
+                }
+              } catch(e) { }
+            }
+          }, 30000);
+        }
+
+      } else {
+        err.innerHTML = '❌ ID "' + raw + '" not found in database.'; 
+        err.classList.add('show');
+      }
+    } else {
+      err.innerHTML = "❌ Database Error: " + result.msg; 
+      err.classList.add('show');
+    }
+  } catch (error) {
+    err.innerHTML = "⚠️ " + error.message; 
+    err.classList.add('show');
+  }
+  btn.innerText = "🚀 View Dashboard"; 
+  btn.disabled = false;
+}
+
+// 🚪 LOGOUT FUNCTION (CLEAN SESSION REDIRECT)
+function logout() {
+  if (window.ttcReloadInterval) { clearInterval(window.ttcReloadInterval); window.ttcReloadInterval = null; }
+  currentStudent = null;
+  currentStudentId = null;
+  document.getElementById('dashboard').classList.remove('active');
+  document.getElementById('welcomeScreen').classList.remove('active');
+  document.getElementById('idScreen').classList.add('active');
+  document.getElementById('studentIdInput').value = '';
+}
+ 
+function playWelcomeSound() {
+  try {
+    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+    var notes = [523.25, 659.25, 783.99, 1046.50]; 
+    for(var i=0; i<notes.length; i++) {
+      var osc = ctx.createOscillator(); var gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = notes[i]; osc.type = 'sine';
+      var t = ctx.currentTime + i * 0.15;
+      gain.gain.setValueAtTime(0, t); gain.gain.linearRampToValueAtTime(0.25, t + 0.05); gain.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+      osc.start(t); osc.stop(t + 0.6);
+    }
+  } catch(e) {}
+}
+ 
+function openDashboard() {
+  document.getElementById('welcomeScreen').classList.remove('active');
+  document.getElementById('dashboard').classList.add('active');
+  setTimeout(function() { populateDashboard(); }, 50);
+}
+
+function goToTab(tabName) {
+  var items = document.querySelectorAll('.nav-item');
+  for (var i = 0; i < items.length; i++) {
+    if (items[i].getAttribute('onclick').indexOf("'" + tabName + "'") !== -1) {
+      switchTab(tabName, items[i]);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      break;
+    }
+  }
+}
+ 
+document.getElementById('studentIdInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') loginStudent();
+  document.getElementById('studentIdInput').style.borderColor = ''; document.getElementById('studentIdInput').style.boxShadow = '';
+});
+
+// 🔄 MASTER RED DOT TAB EVALUATOR
+function reevaluateTabDots() {
+  var testsActive = false;
+  if (currentStudent && currentStudent.tests) {
+     for (var i = 0; i < currentStudent.tests.length; i++) {
+        var t = currentStudent.tests[i];
+        var tKey = 'test_' + safeId(t.subject + t.chapter + t.date);
+        if (localStorage.getItem(currentStudentId + '_' + tKey) !== JSON.stringify(t)) {
+           testsActive = true;
+           break;
+        }
+     }
+  }
+  var dotTests = document.getElementById('dot-tests');
+  if (dotTests) dotTests.classList.toggle('active', testsActive);
+  
+  var sylActive = document.querySelectorAll('#tab-syllabus .inner-dot.active').length > 0;
+  var dotSyl = document.getElementById('dot-syl');
+  if (dotSyl) dotSyl.classList.toggle('active', sylActive);
+}
+ 
+function switchTab(tab, btn) {
+  var panels = document.querySelectorAll('.tab-panel');
+  for(var i=0; i<panels.length; i++) panels[i].classList.remove('active');
+  var items = document.querySelectorAll('.nav-item');
+  for(var j=0; j<items.length; j++) items[j].classList.remove('active');
+  
+  document.getElementById('tab-' + tab).classList.add('active');
+  btn.classList.add('active');
+
+  // Homework Clear on Tab Entry (Soft 2-sec fade out for UX delight)
+  if (tab === 'homework') {
+    if (window.HW_QUEUE && window.HW_QUEUE.length > 0) {
+      window.HW_QUEUE.forEach(item => {
+        localStorage.setItem(item.key, '1');
+      });
+      window.HW_QUEUE = [];
+      var dotHw = document.getElementById('dot-hw');
+      if (dotHw) dotHw.classList.remove('active');
+    }
+  }
+
+  // Progress Clear on Tab Entry
+  if (tab === 'progress' && window.CURRENT_PROG_STATE) {
+    localStorage.setItem('ttc_prog_' + currentStudentId, window.CURRENT_PROG_STATE);
+    var dotProg = document.getElementById('dot-progress');
+    if (dotProg) dotProg.classList.remove('active');
+  }
+  
+  // Tests Clear on Tab Entry
+  if (tab === 'tests') {
+    if (currentStudent && currentStudent.tests) {
+      currentStudent.tests.forEach(t => {
+        var tKey = 'test_' + safeId(t.subject + t.chapter + t.date);
+        localStorage.setItem(currentStudentId + '_' + tKey, JSON.stringify(t));
+      });
+    }
+    var dotTests = document.getElementById('dot-tests');
+    if (dotTests) dotTests.classList.remove('active');
+  }
+}
+ 
+function populateDashboard() {
+  var s = currentStudent;
+  if (!s) return;
+  
+  document.getElementById('hdrName').textContent = s.name || "—";
+  document.getElementById('hdrClass').textContent = (s.class || "—") + ' · ' + (s.board || "—");
+  
+  var foundId = "—";
+  for (var key in STUDENTS) { if (STUDENTS[key] === s) { foundId = key; break; } }
+  document.getElementById('hdrId').textContent = foundId;
+ 
+  populateHome(s); 
+  populateHomework(s); 
+  populateProgress(s); 
+  populateTests(s); 
+  populateSyllabus(s); 
+  populateLeaderboard(); 
+
+  // Evaluate Tab Red Dots initially
+  document.getElementById('dot-hw').classList.toggle('active', window.HW_QUEUE.length > 0);
+  reevaluateTabDots();
+
+  // Progress dot evaluation (Uses raw hash because there are no inner accordions to click)
+  window.CURRENT_PROG_STATE = JSON.stringify(s.subjects || []) + JSON.stringify(s.perfScores || []);
+  var savedProg = localStorage.getItem('ttc_prog_' + currentStudentId);
+  var hasNewProg = (!savedProg && window.CURRENT_PROG_STATE.length > 4) || (savedProg && savedProg !== window.CURRENT_PROG_STATE);
+  document.getElementById('dot-progress').classList.toggle('active', hasNewProg);
+}
+ 
+function populateHome(s) {
+  document.getElementById('homeDateChip').textContent = new Date().toLocaleDateString('en-IN', { day:'numeric', month:'short', weekday:'short' });
+ 
+  var latestTest = (s.tests && s.tests.length > 0) ? s.tests[0] : { score: 0, total: 0 };
+  
+  var pendingHW = 0;
+  if (s.previousHomework) {
+    for (var i = 0; i < s.previousHomework.length; i++) {
+      if (!s.previousHomework[i].done) pendingHW++;
+    }
+  }
+  
+  var avgScore = 0;
+  if (s.subjects && s.subjects.length > 0) {
+    var sum = 0;
+    for (var j = 0; j < s.subjects.length; j++) sum += s.subjects[j].score;
+    avgScore = Math.round(sum / s.subjects.length);
+  }
+ 
+  document.getElementById('statGrid').innerHTML = 
+    '<div class="stat-card blue" onclick="goToTab(\'progress\')"><div class="sc-icon">📈</div><div class="sc-val">' + avgScore + '%</div><div class="sc-label">Avg. Score</div></div>' +
+    '<div class="stat-card orange" onclick="goToTab(\'tests\')"><div class="sc-icon">📝</div><div class="sc-val">' + latestTest.score + '/' + latestTest.total + '</div><div class="sc-label">Latest Test</div></div>' +
+    '<div class="stat-card green" onclick="goToTab(\'syllabus\')"><div class="sc-icon">✅</div><div class="sc-val" style="font-size:22px; padding-top:6px;">View Tab</div><div class="sc-label">Syllabus</div></div>' +
+    '<div class="stat-card pink" onclick="goToTab(\'homework\')"><div class="sc-icon">⚠️</div><div class="sc-val">' + pendingHW + '</div><div class="sc-label">HW Pending</div></div>';
+ 
+  var hwHtml = '<div class="hw-preview-title"><div class="hw-dot"></div> Today\'s Homework</div>';
+  if (s.todayHomework && s.todayHomework.length > 0) {
+    for (var k = 0; k < s.todayHomework.length; k++) {
+      var h = s.todayHomework[k];
+      var safeSubj = String(h.subject).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      var safeTask = String(h.task).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      
+      hwHtml += '<div class="hw-row"><div class="hw-subj" style="background:' + (h.subjectColor || '#4361EE') + '22;border-color:' + (h.subjectColor || '#4361EE') + ';color:' + (h.subjectColor || '#4361EE') + '">' + safeSubj + '</div><div class="hw-task">' + safeTask + '</div></div>';
+    }
+  } else {
+    hwHtml += '<div style="font-size:13px; color:var(--grey); padding-top:5px;">No homework assigned today! 🎉</div>';
+  }
+  document.getElementById('homeTodayHW').innerHTML = hwHtml;
+ 
+  document.getElementById('teacherMsgText').innerHTML = s.teacherMsg ? String(s.teacherMsg).replace(/</g, "&lt;").replace(/>/g, "&gt;") : "—";
+  document.getElementById('teacherMsgSign').innerHTML = s.teacherMsgSign ? String(s.teacherMsgSign).replace(/</g, "&lt;").replace(/>/g, "&gt;") : ""; 
+}
+ 
+function populateHomework(s) {
+  var tHW = s.todayHomework || []; 
+  var pHW = s.previousHomework || [];
+  document.getElementById('todayHWCount').textContent = tHW.length + ' Tasks';
+  document.getElementById('prevHWCount').textContent = pHW.length + ' Entries';
+  
+  window.HW_QUEUE = [];
+ 
+  var todayHtml = '';
+  for (var i = 0; i < tHW.length; i++) {
+    var h = tHW[i];
+    var safeSubj = String(h.subject).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    var safeTask = String(h.task).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    
+    var hwKey = 'hw_' + safeId(h.subject + h.task);
+    var isNew = !localStorage.getItem(currentStudentId + '_' + hwKey);
+    if (isNew) window.HW_QUEUE.push({key: currentStudentId + '_' + hwKey, id: hwKey});
+
+    todayHtml += '<div class="hw-card"><div class="hw-check pending">📌</div><div class="hw-info"><div class="hsubj">' + safeSubj + '</div><div class="htask">' + safeTask + '</div><div class="hmeta">Due: Tomorrow</div></div><div class="status-chip pending">Due</div></div>';
+  }
+  if(tHW.length === 0) todayHtml = '<p style="text-align:center; font-size:13px; color:var(--grey); margin-bottom:20px;">No new homework! Enjoy your day.</p>';
+  document.getElementById('todayHWList').innerHTML = todayHtml;
+ 
+  var prevHtml = '';
+  for (var j = 0; j < pHW.length; j++) {
+    var h2 = pHW[j];
+    var safeSubj2 = String(h2.subject).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    var safeTask2 = String(h2.task).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    var safeDate = String(h2.date).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    var state = h2.done ? 'done' : 'pending';
+    var icon = h2.done ? '✓' : '!';
+    var text = h2.done ? 'Done ✓' : 'Pending';
+
+    var hwKey2 = 'hw_' + safeId(h2.subject + h2.task);
+    var isNew2 = !localStorage.getItem(currentStudentId + '_' + hwKey2);
+    if (isNew2) window.HW_QUEUE.push({key: currentStudentId + '_' + hwKey2, id: hwKey2});
+
+    prevHtml += '<div class="hw-card ' + state + '"><div class="hw-check ' + state + '">' + icon + '</div><div class="hw-info"><div class="hsubj">' + safeSubj2 + '</div><div class="htask">' + safeTask2 + '</div><div class="hmeta">Assigned on ' + safeDate + '</div></div><div class="status-chip ' + state + '">' + text + '</div></div>';
+  }
+  if(pHW.length === 0) prevHtml = '<p style="text-align:center; font-size:13px; color:var(--grey);">No past homework recorded yet.</p>';
+  document.getElementById('prevHWList').innerHTML = prevHtml;
+}
+ 
+function populateProgress(s) {
+  var sorted = [];
+  if (s.subjects) sorted = s.subjects.slice().sort(function(a,b){ return b.score - a.score; });
+  
+  var barsHtml = '<div style="font-family:\'Righteous\',cursive;font-size:15px;color:var(--dark);margin-bottom:12px;">Subject-wise Performance</div>';
+  for (var i = 0; i < sorted.length; i++) {
+    var sub = sorted[i];
+    var cls = sub.score >= 85 ? 'strong' : sub.score >= 70 ? 'good' : sub.score >= 55 ? 'avg' : 'weak';
+    var pctColor = sub.score >= 85 ? '#059669' : sub.score >= 70 ? '#4361EE' : sub.score >= 55 ? '#B8860B' : '#FF6B35';
+    var safeName = String(sub.name).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    barsHtml += '<div class="subj-bar-item"><div class="subj-bar-top"><div class="subj-bar-name">' + (sub.icon || '📚') + ' ' + safeName + '</div><div class="subj-bar-pct" style="color:' + pctColor + '">' + sub.score + '%</div></div><div class="bar-track"><div class="bar-fill ' + cls + '" style="width:' + sub.score + '%"></div></div></div>';
+  }
+  if(sorted.length === 0) barsHtml += '<p style="font-size:13px; color:var(--grey);">No subjects recorded yet.</p>';
+  document.getElementById('subjectBars').innerHTML = barsHtml;
+ 
+  if (perfChart) { perfChart.destroy(); perfChart = null; }
+  var ctx = document.getElementById('perfChart').getContext('2d');
+  if(s.perfScores && s.perfScores.length > 0) {
+    var chartLabels = s.perfLabels.slice(-6);
+    var chartScores = s.perfScores.slice(-6);
+    perfChart = new Chart(ctx, { type: 'line', data: { labels: chartLabels, datasets: [{ label: 'Overall Score %', data: chartScores, borderColor: '#4361EE', backgroundColor: 'rgba(67,97,238,0.12)', borderWidth: 3, pointBackgroundColor: '#E8522A', pointBorderColor: '#111118', pointBorderWidth: 2, pointRadius: 6, fill: true, tension: 0.4 }] }, options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 100, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { family: 'DM Sans', weight: '700' } } }, x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', weight: '700' } } } } } });
+  } else {
+    perfChart = new Chart(ctx, { type: 'line', data: { labels: ['No Data'], datasets: [{ data: [0] }] }, options: { scales: { y: { display: false }, x: { display: false } }, plugins: { legend: { display: false } } } });
+  }
+}
+ 
+function scoreBg(score, total) {
+  if (!total || total === 0) return '#FFF1F1'; 
+  var p = score/total;
+  if (p >= 0.9) return '#E8FFF5'; if (p >= 0.75) return '#EEF6FF'; if (p >= 0.55) return '#FFFADC'; return '#FFF1F1';
+}
+ 
+function populateTests(s) {
+  var html = '';
+  var tests = s.tests || [];
+  for (var i = 0; i < tests.length; i++) {
+    var t = tests[i];
+    var bg = scoreBg(t.score, t.total);
+    var gt = t.grade === 'A+' ? '#059669' : t.grade === 'A' ? '#0369A1' : String(t.grade).indexOf('B') !== -1 ? '#B45309' : '#C00';
+    var gc = t.grade === 'A+' ? 'grade-A-plus' : t.grade === 'A' ? 'grade-A' : String(t.grade).indexOf('B') !== -1 ? 'grade-B' : 'grade-C';
+    
+    var safeSubj = String(t.subject).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    var safeChap = String(t.chapter).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    var safeDate = String(t.date).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    var safeNote = t.note ? String(t.note).replace(/</g, "&lt;").replace(/>/g, "&gt;") : 'No additional notes.';
+ 
+    html += (t.latest ? '<div class="test-latest-badge">🔥 LATEST TEST</div>' : '') +
+    '<div class="test-card ' + (t.latest ? 'latest' : '') + '" id="tc' + i + '">' +
+      '<div class="test-header" onclick="toggleTest(' + i + ')">' +
+        '<div class="test-score-circle ' + gc + '" style="background:' + bg + '"><div class="tscore" style="color:' + gt + '">' + t.score + '</div><div class="ttotal">/ ' + t.total + '</div></div>' +
+        '<div class="test-info"><div class="test-subj">' + safeSubj + '</div><div class="test-chap">' + safeChap + '</div><div class="test-date">📅 ' + safeDate + '</div></div>' +
+        '<div class="test-grade-badge" style="background:' + bg + ';color:' + gt + '">' + t.grade + '</div>' +
+        '<div class="expand-arrow">▼</div>' +
+      '</div>' +
+      '<div class="test-body">' +
+        '<div class="test-sec-label note">📝 TEACHER\'S NOTE</div>' +
+        '<div class="note-box"><span>✏️</span><span>' + safeNote + '</span></div>' +
+      '</div>' +
+    '</div>';
+  }
+  if (tests.length === 0) html = '<p style="text-align:center; font-size:14px; color:var(--grey); margin-top:20px;">No tests recorded yet.</p>';
+  document.getElementById('testsList').innerHTML = html;
+}
+ 
+function toggleTest(i) { 
+  var card = document.getElementById('tc' + i); 
+  if(card) card.classList.toggle('open'); 
+}
+ 
+function populateSyllabus(s) {
+  var container = document.getElementById('syllabusList');
+  if (!s || !s.syllabus) {
+    container.innerHTML = '<p style="text-align:center; color:var(--grey); margin-top:20px;">No syllabus data available.</p>';
+    return;
+  }
+ 
+  var html = '';
+  var index = 0;
+ 
+  for (var subj in s.syllabus) {
+    if (!s.syllabus.hasOwnProperty(subj)) continue;
+    var data = s.syllabus[subj];
+    if (!data) continue;
+ 
+    var cleanName = String(subj || "General").replace(/</g, "&lt;").replace(/>/g, "&gt;").trim();
+ 
+    var comp = data.completed || [];
+    var ongo = data.ongoing || [];
+    var pend = data.pending || [];
+    
+    var sKey = 'syl_' + safeId(cleanName);
+    var savedCompStr = localStorage.getItem(currentStudentId + '_' + sKey);
+    var savedComp = [];
+    
+    // SAFETY NET: Gracefully handle legacy data formats without crashing
+    try {
+      if (savedCompStr) {
+        var parsed = JSON.parse(savedCompStr);
+        if (Array.isArray(parsed)) {
+          savedComp = parsed; // New format
+        } else if (parsed && Array.isArray(parsed.completed)) {
+          savedComp = parsed.completed; // Legacy format
+        }
+      }
+    } catch(e) { }
+
+    var isNew = false;
+    for (var c=0; c<comp.length; c++) {
+        if (!savedComp.includes(comp[c])) { isNew = true; break; }
+    }
+ 
+    html += '<div class="syllabus-subject" id="syl' + index + '">';
+    html += '<div class="syl-header" onclick="toggleSyllabus(' + index + ', \'' + sKey + '\', \'' + safeStrObj(comp) + '\')">';
+    html += '<div class="syl-icon">📚</div>';
+    html += '<div class="syl-name" style="display:flex; align-items:center;">' + cleanName + '<div class="inner-dot ' + (isNew ? 'active' : '') + '" id="dot_' + sKey + '"></div></div>';
+    html += '<div class="syl-expand">▼</div>';
+    html += '</div><div class="syl-body">';
+ 
+    for (var c=0; c<comp.length; c++) {
+      html += '<div class="syl-chapter"><div class="chk done">✓</div><div class="cname done">' + String(comp[c]).replace(/</g,"&lt;") + '</div><div class="ctag done">Completed</div></div>';
+    }
+    for (var o=0; o<ongo.length; o++) {
+      html += '<div class="syl-chapter"><div class="chk" style="background:#FFF3E0; border-color:#FF6B35; color:#FF6B35;">↻</div><div class="cname" style="color:#111118;">' + String(ongo[o]).replace(/</g,"&lt;") + '</div><div class="ctag" style="background:#FFF3E0; color:#FF6B35; border: 1.5px solid #FF6B35;">Ongoing</div></div>';
+    }
+    for (var p=0; p<pend.length; p++) {
+      html += '<div class="syl-chapter"><div class="chk pending">○</div><div class="cname pending">' + String(pend[p]).replace(/</g,"&lt;") + '</div><div class="ctag pending">Upcoming</div></div>';
+    }
+ 
+    html += '</div></div>';
+    index++;
+  }
+ 
+  container.innerHTML = html !== '' ? html : '<p style="text-align:center; color:var(--grey); margin-top:20px;">No syllabus data available.</p>';
+}
+
+function toggleSyllabus(i, key, strStr) {
+  var el = document.getElementById('syl' + i);
+  if (el) el.classList.toggle('open');
+  if (key && strStr) {
+      localStorage.setItem(currentStudentId + '_' + key, decodeURIComponent(strStr));
+      var dot = document.getElementById('dot_' + key);
+      if (dot) dot.classList.remove('active');
+      reevaluateTabDots();
+  }
+}
+
+// 🔴 UPDATED LEADERBOARD LOGIC: ONLY LAST 4 TESTS 🔴
+function populateLeaderboard() {
+  var lbContainer = document.getElementById('leaderboardList');
+  if (!lbContainer) return;
+  var studentAverages = [];
+ 
+  for (var id in STUDENTS) {
+    var s = STUDENTS[id];
+    
+    if (s.tests && s.tests.length > 0) {
+      // Get up to 4 most recent tests
+      var recentTests = s.tests.slice(0, 4);
+      var sumScores = 0;
+      var sumTotals = 0;
+      
+      for (var k = 0; k < recentTests.length; k++) {
+        sumScores += Number(recentTests[k].score) || 0;
+        sumTotals += Number(recentTests[k].total) || 0;
+      }
+      
+      if (sumTotals > 0) {
+        var recentPct = Math.round((sumScores / sumTotals) * 100);
+        
+        // Calculate tie-breaker metrics
+        var mostRecentTest = recentTests[0];
+        var mostRecentPct = 0;
+        if (mostRecentTest && Number(mostRecentTest.total) > 0) {
+          mostRecentPct = Math.round((Number(mostRecentTest.score) / Number(mostRecentTest.total)) * 100);
+        }
+        
+        studentAverages.push({ 
+          name: s.name, 
+          avg: recentPct,
+          mostRecentPct: mostRecentPct,
+          totalTests: s.tests.length
+        });
+      }
+    }
+  }
+ 
+  // Sort from highest to lowest with tie-breakers
+  studentAverages.sort(function(a, b) { 
+    if (b.avg !== a.avg) return b.avg - a.avg; // 1. Average
+    if (b.mostRecentPct !== a.mostRecentPct) return b.mostRecentPct - a.mostRecentPct; // 2. Most recent test percentage
+    if (b.totalTests !== a.totalTests) return b.totalTests - a.totalTests; // 3. Total tests taken (consistency)
+    return a.name.localeCompare(b.name); // 4. Alphabetical
+  });
+  var top5 = studentAverages.slice(0, 5);
+  var html = '';
+  
+  for(var idx=0; idx<top5.length; idx++) {
+    var rankNum = idx + 1;
+    var medal = rankNum === 1 ? '<span class="lb-medal">🥇</span>' : rankNum === 2 ? '<span class="lb-medal">🥈</span>' : rankNum === 3 ? '<span class="lb-medal">🥉</span>' : '#' + rankNum;
+    var safeName = String(top5[idx].name).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    html += '<div class="lb-row"><div class="lb-rank">' + medal + '</div><div class="lb-name">' + safeName + '</div><div class="lb-score">' + top5[idx].avg + '%</div></div>';
+  }
+ 
+  if (top5.length === 0) html = '<div style="padding:16px; text-align:center; font-size:13px; color:var(--grey);">Not enough data for leaderboard yet.</div>';
+  lbContainer.innerHTML = html;
+}
+ 
+document.getElementById('googleReviewBtn').addEventListener('click', function() {
+  setTimeout(function() { window.open('https://g.page/r/CdUkswJ0ZulAEBE/review'); }, 320);
+});
+
+// ══════════════════════════════════════════════════
+// 🏆 ACADEMIC RANK POPUP SYSTEM
+// Detects when the logged-in student's rank changes
+// OR if they hold their rank but have taken new tests!
+// ══════════════════════════════════════════════════
+
+function getRankPopupKey(studentId) {
+  return 'ttc_rank_' + studentId;
+}
+
+function getStoredRankData(studentId) {
+  try {
+    var raw = localStorage.getItem(getRankPopupKey(studentId));
+    return raw ? JSON.parse(raw) : null;
+  } catch(e) { return null; }
+}
+
+function saveRankData(studentId, rank, testsCount) {
+  try {
+    localStorage.setItem(getRankPopupKey(studentId), JSON.stringify({
+      rank: rank,
+      testsCount: testsCount,
+      notifiedAt: Date.now()
+    }));
+  } catch(e) {}
+}
+
+function clearRankData(studentId) {
+  try { localStorage.removeItem(getRankPopupKey(studentId)); } catch(e) {}
+}
+
+function getCurrentStudentRank() {
+  var currentId = null;
+  for (var key in STUDENTS) {
+    if (STUDENTS[key] === currentStudent) { currentId = key; break; }
+  }
+  if (!currentId) return { rank: -1, id: null, top5: [] };
+
+  var studentAverages = [];
+  for (var id in STUDENTS) {
+    var s = STUDENTS[id];
+    if (s.tests && s.tests.length > 0) {
+      var recentTests = s.tests.slice(0, 4);
+      var sumScores = 0, sumTotals = 0;
+      for (var k = 0; k < recentTests.length; k++) {
+        sumScores += Number(recentTests[k].score) || 0;
+        sumTotals += Number(recentTests[k].total) || 0;
+      }
+      if (sumTotals > 0) {
+        studentAverages.push({ id: id, name: s.name, avg: Math.round((sumScores / sumTotals) * 100) });
+      }
+    }
+  }
+  studentAverages.sort(function(a, b) { return b.avg - a.avg; });
+  var top5 = studentAverages.slice(0, 5);
+
+  var rank = -1;
+  for (var i = 0; i < top5.length; i++) {
+    if (top5[i].id === currentId) { rank = i + 1; break; }
+  }
+  return { rank: rank, id: currentId, top5: top5 };
+}
+
+function checkAndShowRankPopup() {
+  var result = getCurrentStudentRank();
+  var studentId = result.id;
+  var currentRank = result.rank;
+
+  if (!studentId || !currentStudent) return;
+
+  var currentTestsCount = currentStudent.tests ? currentStudent.tests.length : 0;
+  var stored = getStoredRankData(studentId);
+
+  // If student drops out of top 5 -> clear data silently
+  if (currentRank === -1) {
+    clearRankData(studentId);
+    return;
+  }
+
+  var prevRank = stored ? stored.rank : -1;
+  var prevTestsCount = stored ? (stored.testsCount || 0) : 0;
+
+  var popupType = null;
+
+  if (prevRank === -1) {
+    // Was not in top 5 before -> NEW ENTRY
+    popupType = 'entered';
+  } else if (currentRank < prevRank) {
+    // Rank number decreased (e.g. #3 -> #1) -> CLIMBED!
+    popupType = 'climbed';
+  } else if (currentRank === prevRank) {
+    // Exact same rank. Only show popup if NEW tests were added since last time.
+    if (currentTestsCount > prevTestsCount) {
+      popupType = 'holding';
+    }
+  }
+  // Note: if currentRank > prevRank (dropped in rank), we do NOT show a popup, 
+  // but we still update the local storage below.
+
+  // Always update storage so we have the latest state (prevents repeat popups)
+  saveRankData(studentId, currentRank, currentTestsCount);
+
+  if (popupType) {
+    setTimeout(function() {
+      showRankPopup(popupType, currentRank, prevRank, currentStudent.name, studentId);
+    }, 500); // 🚀 REDUCED TIMEOUT: Triggers much faster after dashboard loads
+  }
+}
+
+// Educational Themes based on Rank
+var eduThemes = {
+  1: { tag: "TTC TOP STUDENT", primary: "#2563EB", primaryDark: "#1D4ED8", light: "#DBEAFE", gold: "#F59E0B", goldDark: "#B45309", confetti: ['#2563EB', '#F59E0B', '#FFFFFF', '#FCD34D'] },
+  2: { tag: "TTC TOP STUDENT", primary: "#0EA5E9", primaryDark: "#0284C7", light: "#E0F2FE", gold: "#94A3B8", goldDark: "#475569", confetti: ['#0EA5E9', '#94A3B8', '#FFFFFF', '#E2E8F0'] },
+  3: { tag: "TTC TOP STUDENT", primary: "#10B981", primaryDark: "#059669", light: "#D1FAE5", gold: "#D97706", goldDark: "#92400E", confetti: ['#10B981', '#D97706', '#FFFFFF', '#FDE68A'] },
+  default: { tag: "TTC TOP STUDENT", primary: "#4361EE", primaryDark: "#3730A3", light: "#EEF2FF", gold: "#8B5CF6", goldDark: "#5B21B6", confetti: ['#4361EE', '#8B5CF6', '#FFFFFF', '#C4B5FD'] }
+};
+
+function showRankPopup(type, rank, prevRank, studentName, studentId) {
+  var ex = document.getElementById('edu-overlay');
+  if (ex) ex.remove();
+
+  var t = eduThemes[rank] || eduThemes.default;
+  var subLine = '';
+  
+  if (type === 'entered') subLine = `Incredible work! You've successfully entered the Top 5.`;
+  else if (type === 'climbed') subLine = `Hard work pays off! You climbed from <strong>#${prevRank}</strong> to <strong>#${rank}</strong>.`;
+  else subLine = `Consistent excellence! You are holding strong at <strong>#${rank}</strong>.`;
+
+  var rankDisplay = rank === 1 ? '1st Place' : rank === 2 ? '2nd Place' : rank === 3 ? '3rd Place' : 'Rank #' + rank;
+
+  var waMsg = encodeURIComponent(
+    '🏆 ' + studentName + ' is ranked ' + rankDisplay + ' at Tushar Tuition Classes, Wardha!\n' +
+    'Hard work is paying off! 💪\n\n' +
+    '📱 Dashboard: https://tusharnanwani80-rgb.github.io/TTC-Parent-Dashboard/'
+  );
+
+  var overlay = document.createElement('div');
+  overlay.id = 'edu-overlay';
+  
+  overlay.innerHTML = `
+    <div id="edu-card" style="--theme-primary: ${t.primary}; --theme-primary-dark: ${t.primaryDark}; --theme-light: ${t.light}; --theme-gold: ${t.gold}; --theme-gold-dark: ${t.goldDark};">
+      
+      <div class="edu-header-pattern"></div>
+      
+      <div class="edu-badge-container">
+        <div class="edu-glow-ring"></div>
+        <img class="edu-ttc-logo" src="https://i.postimg.cc/x9mDND2Q/Ttc-logo.png" alt="TTC">
+        <div class="edu-rank-ribbon">${rankDisplay}</div>
+      </div>
+      
+      <div class="edu-content">
+        <div class="edu-tag">${t.tag}</div>
+        <h2 class="edu-title">Top Academic Performance</h2>
+        <p class="edu-subtitle">Congratulations, <strong>${studentName}</strong>!<br>${subLine}</p>
+        
+        <a href="https://wa.me/?text=${waMsg}" class="edu-btn-primary" target="_blank" rel="noopener">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Share with Family
+        </a>
+        
+        <button class="edu-btn-leaderboard" id="edu-leaderboard">
+          🏆 Go to Leaderboard
+        </button>
+
+        <button class="edu-btn-secondary" id="edu-close">Okay</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  setTimeout(function() {
+    confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 }, colors: t.confetti, zIndex: 10000 });
+  }, 400);
+
+  function closePopup() {
+    var card = document.getElementById('edu-card');
+    card.style.animation = 'eduCardOut 0.3s ease forwards';
+    overlay.style.animation = 'eduFadeIn 0.3s ease reverse forwards';
+    setTimeout(function(){ overlay.remove(); }, 300);
+  }
+
+  // 🚀 FIXED: Only the explicit buttons can close the popup now.
+  document.getElementById('edu-close').addEventListener('click', closePopup);
+  
+  // (The overlay click listener has been completely removed to prevent accidental dismissals)
+
+  // Open Reviews/Leaderboard tab when clicked
+  document.getElementById('edu-leaderboard').addEventListener('click', function() {
+    closePopup();
+    setTimeout(() => {
+      var navBtns = document.querySelectorAll('.nav-item');
+      if (navBtns.length > 0) {
+        switchTab('reviews', navBtns[navBtns.length - 1]);
+        setTimeout(() => {
+          var lbHeader = document.getElementById('leaderboardSection');
+          if(lbHeader) {
+            lbHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 300);
+      }
+    }, 350);
+  });
+}
+
+// Hook into openDashboard
+var _origOpenDashboard = openDashboard;
+openDashboard = function() {
+  _origOpenDashboard();
+  setTimeout(checkAndShowRankPopup, 300);
+};
+</script>
+<script>
+  // ══════════════════════════════════════════════════
+  // PWA & SERVICE WORKER LOGIC
+  // ══════════════════════════════════════════════════
+
+  // 1. Register Service Worker (Required for Install Prompt)
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Error:', err));
+    });
+  }
+
+  // 2. Real-Time Dynamic Island Install Logic
+  let deferredPrompt;
+
+  // Intercept native prompt
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+   
+    // Checks to prevent showing if already dismissed or standalone
+    if (localStorage.getItem('pwa_island_dismissed')) return;
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) return;
+
+    showPwaIsland();
+  });
+
+  // Native success event (Fires only when OS actually completes installation)
+  window.addEventListener('appinstalled', () => {
+    console.log('App actually installed natively');
+    markPwaInstalled();
+  });
+
+  function showPwaIsland() {
+    const container = document.getElementById('pwa-island-container');
+    const closeBtn = document.getElementById('pwa-island-close');
+    if(!container) return;
+    
+    container.style.display = 'flex';
+    
+    // Reveal close button after 2 seconds
+    setTimeout(() => {
+      closeBtn.classList.add('ready');
+    }, 2000);
+  }
+
+  async function handlePwaInstall() {
+    if (!deferredPrompt) return;
+    
+    // Switch UI to 'Waiting/Installing' mode
+    document.getElementById('pwa-island-btn').style.display = 'none';
+    document.getElementById('pwa-progress').style.display = 'block';
+    
+    // Trigger OS prompt
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    
+    // Discard prompt once used
+    deferredPrompt = null;
+    
+    if (outcome !== 'accepted') {
+      // User pressed cancel on the OS pop-up
+      hidePwaIsland();
+    }
+    // If accepted, we wait silently for the 'appinstalled' event to trigger success.
+  }
+
+  function markPwaInstalled() {
+    const island = document.getElementById('pwa-island');
+    
+    // Transform to success state
+    island.classList.add('success');
+    document.getElementById('pwa-island-title').innerText = "App Installed Successfully";
+    document.getElementById('pwa-progress').style.display = 'none';
+    
+    document.getElementById('pwa-island-icon').innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline class="check-svg" points="20 6 9 17 4 12"></polyline></svg>';
+    
+    // Ensure it never shows again
+    localStorage.setItem('pwa_island_dismissed', 'true');
+    
+    // Dismiss after 3 seconds of showing success
+    setTimeout(hidePwaIsland, 3000);
+  }
+
+  function dismissPwaIsland() {
+    hidePwaIsland();
+    localStorage.setItem('pwa_island_dismissed', 'true'); // Never show again
+  }
+
+  function hidePwaIsland() {
+    const container = document.getElementById('pwa-island-container');
+    if(container) {
+      container.style.opacity = '0';
+      container.style.transform = 'translateY(-20px)';
+      setTimeout(() => { container.style.display = 'none'; }, 300);
+    }
+  }
+
+  // NEO INSTALL BUTTON LOGIC
+  function checkInstallStatus() {
+    const btn = document.getElementById('neoInstallBtn');
+    if (!btn) return;
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+      btn.innerText = "App is already installed";
+      btn.disabled = true;
+      btn.style.background = "var(--light)";
+      btn.style.color = "var(--grey)";
+      btn.style.borderColor = "var(--grey)";
+      btn.style.boxShadow = "none";
+      btn.style.transform = "none";
+      btn.style.cursor = "not-allowed";
+    } else {
+      btn.innerText = "Install TTC PD App";
+      btn.disabled = false;
+      btn.style.background = "";
+      btn.style.color = "";
+      btn.style.borderColor = "";
+      btn.style.boxShadow = "";
+      btn.style.transform = "";
+      btn.style.cursor = "pointer";
+    }
+  }
+  window.addEventListener('load', checkInstallStatus);
+  window.matchMedia('(display-mode: standalone)').addEventListener('change', checkInstallStatus);
+  window.addEventListener('appinstalled', checkInstallStatus);
+
+  async function triggerNeoInstall() {
+    const btn = document.getElementById('neoInstallBtn');
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+       checkInstallStatus();
+       return;
+    }
+    if (!deferredPrompt) {
+       alert("Installation is not supported on this browser, or the app is already installed.");
+       return;
+    }
+    
+    const originalText = btn.innerText;
+    btn.innerText = "Installing...";
+    
+    try {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      
+      if (outcome === 'accepted') {
+         checkInstallStatus();
+      } else {
+         btn.innerText = originalText;
+      }
+    } catch (err) {
+      console.error(err);
+      btn.innerText = originalText;
+    }
+  }
+</script>
+<!-- DYNAMIC ISLAND PWA CONTAINER -->
+<div id="pwa-island-container">
+  <div id="pwa-island" class="group">
+    <div class="pwa-icon-box" id="pwa-island-icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+    </div>
+    
+    <div class="pwa-text-box">
+      <div class="pwa-title" id="pwa-island-title">Install App / ऐप इंस्टॉल करें</div>
+      <div class="pwa-progress-track" id="pwa-progress"><div class="pwa-progress-bar"></div></div>
+    </div>
+    
+    <button class="pwa-btn" id="pwa-island-btn" onclick="handlePwaInstall()">Install</button>
+    
+    <button class="pwa-close" id="pwa-island-close" onclick="dismissPwaIsland()" aria-label="Close">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+  </div>
+</div>
+
+ 
+</body>
+</html>
