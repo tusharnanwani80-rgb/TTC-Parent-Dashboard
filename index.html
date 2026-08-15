@@ -718,11 +718,18 @@ function populateHome(s) {
     }
   }
   
-  var avgScore = 0;
-  if (s.subjects && s.subjects.length > 0) {
-    var sum = 0;
-    for (var j = 0; j < s.subjects.length; j++) sum += s.subjects[j].score;
-    avgScore = Math.round(sum / s.subjects.length);
+   var avgScore = 0;
+  if (s.tests && s.tests.length > 0) {
+    var recentTests = s.tests.slice(0, 4);
+    var sumScores = 0;
+    var sumTotals = 0;
+
+    for (var j = 0; j < recentTests.length; j++) {
+      sumScores += Number(recentTests[j].score) || 0;
+      sumTotals += Number(recentTests[j].total) || 0;
+    }
+
+    avgScore = sumTotals > 0 ? Math.round((sumScores / sumTotals) * 100) : 0;
   }
  
   document.getElementById('statGrid').innerHTML = 
