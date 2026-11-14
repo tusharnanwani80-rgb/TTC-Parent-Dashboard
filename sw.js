@@ -22,3 +22,35 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
+
+// ══════════ 🔔 TTC PUSH NOTIFICATIONS ══════════
+self.addEventListener('push', function (event) {
+  var d = {};
+  try { d = event.data ? event.data.json() : {}; } catch (e) {}
+  var p = d.data || d.notification || d;               // FCM data-only message → d.data
+
+  event.waitUntil(self.registration.showNotification(p.title || 'TTC', {
+    body: p.body || '',
+    icon: 'icon.png',
+    tag: p.tag || 'ttc',
+    renotify: true,
+    data: { tab: p.tab || 'home' }
+  }));
+});
+
+self.addEventListener('notificationclick', function (event) {
+  event.notification.close();
+  var tab = (event.notification.data && event.notification.data.tab) || 'home';
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (list) {
+      for (var i = 0; i < list.length; i++) {
+        if ('focus' in list[i]) {                       // app already open → just switch tab
+          list[i].postMessage({ type: 'ttc-open-tab', tab: tab });
+          return list[i].focus();
+        }
+      }
+      return clients.openWindow(self.registration.scope + '#tab=' + tab);   // app closed → launch it
+    })
+  );
+});
