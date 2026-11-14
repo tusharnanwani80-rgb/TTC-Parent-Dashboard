@@ -255,5 +255,31 @@
     };
   }
 
+  // ── Silent re-sync: if this phone's token ever changes, quietly move every student on this phone to the new one ──
+  var lastSync = 0;
+  async function silentSync() {
+    if (!configured || !supported || perm() !== 'granted') return;
+    if (Date.now() - lastSync < 5 * 60 * 1000) return;         // at most once per 5 minutes
+    lastSync = Date.now();
+    var ids = [];
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (k && k.indexOf('ttc_push_') === 0) ids.push(k.slice(9));
+    }
+    if (!ids.length) return;
+    try {
+      var token = await getFcmToken();
+      for (var j = 0; j < ids.length; j++) {
+        if (localStorage.getItem(key(ids[j])) !== token) {
+          if (await register(ids[j], token, true) === 'ok') localStorage.setItem(key(ids[j]), token);
+        }
+      }
+    } catch (e) { console.log('[ttc-push] silent sync', e); }
+  }
+  setTimeout(silentSync, 3000);                                  // when the app opens
+  document.addEventListener('visibilitychange', function () {   // and whenever it comes back to the screen
+    if (document.visibilityState === 'visible') silentSync();
+  });
+
   inject();
 })();
