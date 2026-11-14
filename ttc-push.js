@@ -183,7 +183,9 @@
       }
       state = 'off'; alert('Could not save. Please check your internet and try again.');
     } catch (e) {
-      console.log('[ttc-push]', e); state = 'off'; alert('Could not enable notifications. Please check your internet and try again.');
+      console.log('[ttc-push]', e); state = 'off';
+      var why = (e && (e.code || e.message)) ? ' [' + String(e.code || e.message).slice(0, 90) + ']' : '';
+      alert('Could not enable notifications' + why + '\n\nPlease open this app in Chrome, update Chrome, and try again. If it still fails, send this message to TTC.');
     }
     paint();
   }
