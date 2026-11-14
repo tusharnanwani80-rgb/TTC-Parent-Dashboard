@@ -7,15 +7,15 @@
 
   // 🔴 FILL THESE (Firebase Console → Project settings → Your apps → Web app) 🔴
   var FIREBASE_CONFIG = {
-    apiKey:            'PASTE_apiKey',
-    authDomain:        'PASTE_authDomain',
-    projectId:         'PASTE_projectId',
-    storageBucket:     'PASTE_storageBucket',
-    messagingSenderId: 'PASTE_messagingSenderId',
-    appId:             'PASTE_appId'
+    apiKey:            'AIzaSyDno6o5euRzvnnOSHDPZg1QuFcDpYT-ZtA',
+    authDomain:        'ttc-pd.firebaseapp.com',
+    projectId:         'ttc-pd',
+    storageBucket:     'ttc-pd.firebasestorage.app',
+    messagingSenderId: '332737800913',
+    appId:             '1:332737800913:web:14b34abe7b5b587fd373f0'
   };
   // 🔴 Firebase Console → Project settings → Cloud Messaging → Web Push certificates → "Key pair"
-  var VAPID_KEY = 'PASTE_VAPID_KEY_PAIR';
+  var VAPID_KEY = 'BLul7LkSpsHkMHJFLGI_g_TsVX2Co_zWC1gLPPjpFLyHoOC0q_LSjp1wjBOOiMAnUTfszNImomL7GQq4hLiQkWs';
 
   var FB_CDN = 'https://www.gstatic.com/firebasejs/10.12.2/';
   var TABS = ['home', 'homework', 'progress', 'tests', 'syllabus', 'reviews'];
