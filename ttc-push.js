@@ -66,9 +66,25 @@
     });
     return r.json();
   }
-  async function register(studentId, token) {
+  async function register(studentId, token) {            // → 'ok' | 'dead' | 'fail'
     var j = await post([{ type: 'REGISTER_TOKEN', studentId: studentId, token: token, ua: navigator.userAgent.slice(0, 120) }]);
-    return j.status === 'success';
+    return j.status === 'success' ? 'ok' : (j.status === 'dead' ? 'dead' : 'fail');
+  }
+  // Firebase can keep handing back a stale token → throw it away and get a brand-new one
+  async function freshToken() {
+    var m = await getMessaging();
+    try { await m.deleteToken(); } catch (e) { console.log('[ttc-push] deleteToken', e); }
+    return getFcmToken();
+  }
+  // Registers; if the server says the token is dead, self-heals ONCE. Returns the working token, or null.
+  async function registerHealing(studentId, token) {
+    var r = await register(studentId, token);
+    if (r === 'ok') return token;
+    if (r === 'dead') {
+      var fresh = await freshToken();
+      if (await register(studentId, fresh) === 'ok') return fresh;
+    }
+    return null;
   }
 
   // ── UI ──
@@ -146,8 +162,9 @@
       var p = await Notification.requestPermission();
       if (p !== 'granted') { state = 'off'; paint(); if (p === 'denied') alert(BLOCKED_TEXT); return; }
       var token = await getFcmToken();
-      if (await register(id, token)) {
-        localStorage.setItem(key(id), token); state = 'on'; paint();
+      var good = await registerHealing(id, token);
+      if (good) {
+        localStorage.setItem(key(id), good); state = 'on'; paint();
         setHint('🎉 Done! A welcome notification is on its way.');
         scheduleHelp();
         return;
@@ -174,8 +191,9 @@
       if (r.status === 'success') { setHint('📨 Test sent! Check your notifications.'); scheduleHelp(); }
       else if (r.status === 'wait') setHint('⏳ Please wait a few seconds, then try again.');
       else if (r.status === 'unregistered') {            // server lost this phone → silently sign it up again
-        if (await register(id, token)) { localStorage.setItem(key(id), token); setHint('🎉 Re-enabled! A notification should arrive now.'); scheduleHelp(); }
-        else setHint('⚠️ Could not reach TTC. Check your internet and try again.');
+        var good = await registerHealing(id, token);
+        if (good) { localStorage.setItem(key(id), good); setHint('🎉 Re-enabled! A notification should arrive now.'); scheduleHelp(); }
+        else setHint('⚠️ This phone is not receiving notifications. In phone Settings → Apps → Chrome → Notifications, tap Allow, then tap “Enable notifications” again.');
       } else setHint('⚠️ Could not send right now. Please try again in a minute.');
     } catch (e) { console.log('[ttc-push] test', e); setHint('⚠️ Could not send. Check your internet and try again.'); }
     testBusy = false;
@@ -188,7 +206,8 @@
     if (!configured || !supported || perm() !== 'granted') return;
     try {
       var token = await getFcmToken();
-      if (localStorage.getItem(key(id)) !== token && await register(id, token)) localStorage.setItem(key(id), token);
+      var good = await registerHealing(id, token);       // runs at every login → also quietly repairs lost/dead registrations
+      if (good) localStorage.setItem(key(id), good); else localStorage.removeItem(key(id));
       state = localStorage.getItem(key(id)) ? 'on' : 'off'; paint();
     } catch (e) { console.log('[ttc-push] sync', e); }
   }
