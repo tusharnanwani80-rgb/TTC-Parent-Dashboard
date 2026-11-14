@@ -66,8 +66,8 @@
     });
     return r.json();
   }
-  async function register(studentId, token) {            // → 'ok' | 'dead' | 'fail'
-    var j = await post([{ type: 'REGISTER_TOKEN', studentId: studentId, token: token, ua: navigator.userAgent.slice(0, 120) }]);
+  async function register(studentId, token, quiet) {     // → 'ok' | 'dead' | 'fail'
+    var j = await post([{ type: 'REGISTER_TOKEN', studentId: studentId, token: token, quiet: !!quiet, ua: navigator.userAgent.slice(0, 120) }]);
     return j.status === 'success' ? 'ok' : (j.status === 'dead' ? 'dead' : 'fail');
   }
   // Firebase can keep handing back a stale token → throw it away and get a brand-new one
@@ -82,9 +82,21 @@
     if (r === 'ok') return token;
     if (r === 'dead') {
       var fresh = await freshToken();
-      if (await register(studentId, fresh) === 'ok') return fresh;
+      if (await register(studentId, fresh) === 'ok') {
+        await moveOthers(studentId, fresh);
+        return fresh;
+      }
     }
     return null;
+  }
+  // The old token is dead for EVERY student on this phone → move them all to the new token
+  async function moveOthers(exceptId, token) {
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (k && k.indexOf('ttc_push_') === 0 && k.slice(9) !== exceptId) {
+        try { if (await register(k.slice(9), token, true) === 'ok') localStorage.setItem(k, token); } catch (e) {}
+      }
+    }
   }
 
   // ── UI ──
