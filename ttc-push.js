@@ -53,10 +53,19 @@
     }
     return sdkPromise;
   }
-  async function getFcmToken() {
-    var reg = await navigator.serviceWorker.ready;           // re-uses your existing sw.js
-    var m = await getMessaging();
-    return m.getToken({ vapidKey: VAPID_KEY, serviceWorkerRegistration: reg });
+  // ONE token request at a time (two parallel getToken calls can create a second, orphaned token)
+  var tokenInflight = null;
+  function getFcmToken() {
+    if (!tokenInflight) {
+      tokenInflight = (async function () {
+        var reg = await navigator.serviceWorker.ready;       // re-uses your existing sw.js
+        var m = await getMessaging();
+        return m.getToken({ vapidKey: VAPID_KEY, serviceWorkerRegistration: reg });
+      })();
+      var clear = function () { tokenInflight = null; };
+      tokenInflight.then(clear, clear);
+    }
+    return tokenInflight;
   }
   async function post(arr) {
     var r = await fetch(WEB_APP_URL, {
@@ -257,11 +266,21 @@
     };
   }
 
-  // ── Silent re-sync: if this phone's token ever changes, quietly move every student on this phone to the new one ──
+  // ── Heartbeat: every time the app opens / returns to the screen, quietly re-register every student on this phone.
+  //    A row that was ever lost on the server simply comes back — no login, no tap, nothing for the parent to do. ──
+  async function syncIds(ids, token) {
+    var dead = false;
+    for (var j = 0; j < ids.length; j++) {
+      var r = await register(ids[j], token, true);
+      if (r === 'ok') localStorage.setItem(key(ids[j]), token);
+      else if (r === 'dead') dead = true;
+    }
+    return dead;
+  }
   var lastSync = 0;
   async function silentSync() {
     if (!configured || !supported || perm() !== 'granted') return;
-    if (Date.now() - lastSync < 5 * 60 * 1000) return;         // at most once per 5 minutes
+    if (Date.now() - lastSync < 10 * 60 * 1000) return;        // at most once per 10 minutes
     lastSync = Date.now();
     var ids = [];
     for (var i = 0; i < localStorage.length; i++) {
@@ -271,12 +290,11 @@
     if (!ids.length) return;
     try {
       var token = await getFcmToken();
-      for (var j = 0; j < ids.length; j++) {
-        if (localStorage.getItem(key(ids[j])) !== token) {
-          if (await register(ids[j], token, true) === 'ok') localStorage.setItem(key(ids[j]), token);
-        }
+      if (await syncIds(ids, token)) {                          // server says this token is known-dead → fetch a fresh one (once)
+        token = await freshToken();
+        await syncIds(ids, token);
       }
-    } catch (e) { console.log('[ttc-push] silent sync', e); }
+    } catch (e) { console.log('[ttc-push] heartbeat', e); }
   }
   setTimeout(silentSync, 3000);                                  // when the app opens
   document.addEventListener('visibilitychange', function () {   // and whenever it comes back to the screen
